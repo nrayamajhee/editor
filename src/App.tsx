@@ -1,7 +1,7 @@
 import Editor from "@monaco-editor/react";
 // @ts-ignore Import module
 import { LaTeXJSComponent } from "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.mjs";
-import { DOMAttributes, useState } from "react";
+import { DOMAttributes, useEffect, useState } from "react";
 
 customElements.define("latex-js", LaTeXJSComponent);
 type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
@@ -15,6 +15,12 @@ declare global {
 
 function App() {
   const [text, setText] = useState("");
+  useEffect(() => {
+    fetch("sample.tex")
+      .then((r) => r.text())
+      .then((j) => setText(j));
+  }, []);
+
   const handleUpdate = (value?: string) => {
     if (value) {
       setText(value);
