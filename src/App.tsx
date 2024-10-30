@@ -1,31 +1,10 @@
+import "katex/dist/katex.min.css";
 import Editor from "@monaco-editor/react";
-// @ts-ignore Import module
-import { LaTeXJSComponent } from "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.mjs";
-import { DOMAttributes, useEffect, useState } from "react";
-
-customElements.define("latex-js", LaTeXJSComponent);
-type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["latex-js"]: CustomElement<LaTeXJSComponent>;
-    }
-  }
-}
+import TeX from "@matejmazur/react-katex";
+import { useState } from "react";
 
 function App() {
-  const [text, setText] = useState("");
-  const [defaultText, setDefaultText] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("sample.tex")
-      .then((r) => r.text())
-      .then((j) => setDefaultText(j));
-  }, []);
-
-  useEffect(() => {
-    defaultText && setText(defaultText);
-  }, [defaultText]);
+  const [text, setText] = useState("\\TeX\nE=mc^2");
 
   const handleUpdate = (value?: string) => {
     if (value) {
@@ -34,17 +13,17 @@ function App() {
   };
   return (
     <div className="grid grid-cols-2 min-h-screen">
-      {defaultText && (
-        <Editor
-          height="100vh"
-          defaultLanguage="latex"
-          defaultValue={defaultText}
-          onChange={handleUpdate}
-        />
-      )}
-      <latex-js baseURL="https://cdn.jsdelivr.net/npm/latex.js/dist/">
-        {text}
-      </latex-js>
+      <Editor
+        height="100vh"
+        defaultLanguage="latex"
+        defaultValue={text}
+        onChange={handleUpdate}
+      />
+      <div className="flex flex-col">
+        {text.split("\n").map((t) => (
+          <TeX settings={{ output: "html" }}>{t}</TeX>
+        ))}
+      </div>
     </div>
   );
 }
