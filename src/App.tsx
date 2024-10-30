@@ -1,5 +1,5 @@
 import Editor from "@monaco-editor/react";
-import { MathJax, MathJaxContext } from "better-react-mathjax";
+// @ts-ignore Import module
 import { LaTeXJSComponent } from "https://cdn.jsdelivr.net/npm/latex.js/dist/latex.mjs";
 import { DOMAttributes, useState } from "react";
 
