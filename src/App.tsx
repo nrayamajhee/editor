@@ -15,11 +15,17 @@ declare global {
 
 function App() {
   const [text, setText] = useState("");
+  const [defaultText, setDefaultText] = useState<string | null>(null);
+
   useEffect(() => {
     fetch("sample.tex")
       .then((r) => r.text())
-      .then((j) => setText(j));
+      .then((j) => setDefaultText(j));
   }, []);
+
+  useEffect(() => {
+    defaultText && setText(defaultText);
+  }, [defaultText]);
 
   const handleUpdate = (value?: string) => {
     if (value) {
@@ -28,12 +34,14 @@ function App() {
   };
   return (
     <div className="grid grid-cols-2 min-h-screen">
-      <Editor
-        height="100vh"
-        defaultLanguage="latex"
-        defaultValue={text}
-        onChange={handleUpdate}
-      />
+      {defaultText && (
+        <Editor
+          height="100vh"
+          defaultLanguage="latex"
+          defaultValue={defaultText}
+          onChange={handleUpdate}
+        />
+      )}
       <latex-js baseURL="https://cdn.jsdelivr.net/npm/latex.js/dist/">
         {text}
       </latex-js>
