@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-frontend:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,7 +35,11 @@ jobs:
         env:
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
         run: npm run build
-  check-backend:
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "web/dist"
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -47,37 +51,15 @@ jobs:
         run: rustup update stable && rustup default stable
       - name: Build
         run: cargo build --verbose
-  deploy:
+  pages:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    needs: ["check-backend", "check-frontend"]
+    needs: ["backend", "frontend"]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: "web/package-lock.json"
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-
-        run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

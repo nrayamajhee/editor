@@ -13,11 +13,11 @@ import {
   useClerk,
   useUser,
 } from "@clerk/clerk-react";
-import {
-  generateUploadButton,
-  generateUploadDropzone,
-} from "@uploadthing/react";
-import type { OurFileRouter } from "~/app/api/uploadthing/core";
+// import {
+//   generateUploadButton,
+//   generateUploadDropzone,
+// } from "@uploadthing/react";
+// import type { OurFileRouter } from "~/app/api/uploadthing/core";
 
 type Mode = "edit" | "view" | "split";
 
