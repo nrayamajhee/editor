@@ -1,5 +1,4 @@
-export const markdown = `
-Heading 1
+export const markdown = `Heading 1
 ===========
 Heading 2
 ------------
@@ -12,6 +11,8 @@ Heading 2
 **bold**
 
 _italic_ 
+
+~~strikethrough~~
 
 [Link](http://nishan.rayamajhee.com) 
 
@@ -33,6 +34,13 @@ _italic_
 
 - [x] Done
 - [ ] ToDo
+
+| Title1 | Title 2|
+|--------|--------|
+| Row 1  | Row 1  |
+| Row 2  | Row 2  |
+| Row 3  | Row 3  |
+| Row 4  | Row 4  |
 
 \`\`\`=rust
 fn main() {
