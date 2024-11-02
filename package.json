@@ -1,19 +1,21 @@
 {
-  "name": "latex-test",
+  "name": "markdown-editor",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build --base=/editor",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@matejmazur/react-katex": "^3.1.3",
     "@monaco-editor/react": "^4.6.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "vim-monaco": "^1.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
