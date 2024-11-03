@@ -1,10 +1,9 @@
-import Editor, { Monaco } from "@monaco-editor/react";
+import MonacoEditor, { Monaco as M } from "@monaco-editor/react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye, FiUser } from "react-icons/fi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import { markdown } from "./content";
 import {
   SignedIn,
   SignedOut,
@@ -13,26 +12,40 @@ import {
   useClerk,
   useUser,
 } from "@clerk/clerk-react";
-// import {
-//   generateUploadButton,
-//   generateUploadDropzone,
-// } from "@uploadthing/react";
-// import type { OurFileRouter } from "~/app/api/uploadthing/core";
+import { Link, useParams } from "react-router-dom";
+import { useMutation, useQuery } from "./main";
+import { useDebounce } from "@uidotdev/usehooks";
+import { PartialDocument } from "schema";
 
 type Mode = "edit" | "view" | "split";
 
-function App() {
-  const clerk = useClerk();
-  const { user } = useUser();
-  const [text, setText] = useState(markdown);
-  const [mode, setMode] = useState<Mode>("split");
-  // const UploadDropzone = generateUploadDropzone<OurFileRouter>();
+type MonacoProps = {
+  defaultText: string;
+  setText: (newText: string) => void;
+};
+
+function Monaco({ defaultText, setText }: MonacoProps) {
+  let { slug } = useParams();
+  const updateDoc = useMutation<PartialDocument>(
+    "update_document",
+    `/document/${slug}`,
+  );
+  const [text, setTextInternal] = useState(defaultText);
   const handleUpdate = (value?: string) => {
     if (value) {
-      setText(value);
+      setTextInternal(value);
     }
   };
-  function handleOnMount(_editor: any, monaco: Monaco) {
+  const debouncedText = useDebounce(text, 300);
+  useEffect(() => {
+    if (debouncedText) {
+      setText(debouncedText);
+      updateDoc.mutate({
+        content: debouncedText,
+      });
+    }
+  }, [debouncedText]);
+  function handleOnMount(_editor: any, monaco: M) {
     monaco.editor.addKeybindingRule({
       keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF,
       command: null,
@@ -42,15 +55,45 @@ function App() {
       command: null,
     });
   }
+  return (
+    <MonacoEditor
+      defaultLanguage="markdown"
+      defaultValue={text}
+      theme="vs-dark"
+      options={{
+        minimap: {
+          enabled: false,
+        },
+      }}
+      onChange={handleUpdate}
+      onMount={handleOnMount}
+    />
+  );
+}
+
+function Editor() {
+  let { slug } = useParams();
+  const clerk = useClerk();
+  const { user } = useUser();
+  const docQuery = useQuery("update_documents", `/document/${slug}`);
+  const [text, setText] = useState<string | null>(null);
+
+  const [mode, setMode] = useState<Mode>("split");
   const getColor = (buttonMode: Mode) =>
     buttonMode === mode ? "bg-zinc-700" : "";
+  if (docQuery.isLoading) {
+    return <>Loading</>;
+  }
+  if (docQuery.isError || !docQuery.data) {
+    return <>Error</>;
+  }
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex items-center justify-between bg-zinc-800 p-4">
         <div className="flex gap-4 items-center">
-          <button>
+          <Link to="/">
             <FiArrowLeft />
-          </button>
+          </Link>
           <h1 className="text-xl">Markdown Editor</h1>
           <div className="flex gap-2 bg-zinc-900 p-1 rounded-md">
             <button
@@ -111,21 +154,10 @@ function App() {
           </SignedIn>
         </div>
       </header>
-      <div className="flex min-h-0">
+      <div className="flex min-h-0 flex-1">
         {mode !== "view" && clerk.loaded && (
-          <div className="flex-1 min-w-0">
-            <Editor
-              defaultLanguage="markdown"
-              defaultValue={text}
-              theme="vs-dark"
-              options={{
-                minimap: {
-                  enabled: false,
-                },
-              }}
-              onChange={handleUpdate}
-              onMount={handleOnMount}
-            />
+          <div className="flex-1 min-w-0 min-h-full">
+            <Monaco defaultText={docQuery.data.content} setText={setText} />
           </div>
         )}
         {mode !== "edit" && (
@@ -140,4 +172,4 @@ function App() {
   );
 }
 
-export default App;
+export default Editor;

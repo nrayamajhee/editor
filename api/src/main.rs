@@ -1,16 +1,18 @@
+#![feature(try_blocks)]
+
+mod document;
 use std::sync::Arc;
 
 use anyhow::Result;
 use axum::{
-    extract::{Path, State},
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::{IntoResponse, Response as AxumRes},
     routing::{get, post},
     Json, Router,
 };
 use clerk_rs::{clerk::Clerk, ClerkConfiguration};
 use dotenv::dotenv;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 
 #[derive(Clone)]
@@ -38,7 +40,8 @@ async fn main() -> Result<()> {
     let auth = Arc::new(Clerk::new(config));
     let app = Router::new()
         .route("/", get(root))
-        .route("/document/:slug", get(document))
+        .route("/documents", get(document::get_all).post(document::create))
+        .route("/document/:slug", get(document::get).post(document::update))
         .with_state(AppState { db, auth });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
     axum::serve(listener, app).await?;
@@ -49,36 +52,16 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Document {
-    slug: String,
-    title: String,
-    content: String,
+pub enum Response<T: Serialize> {
+    Success(T),
+    Error(String),
 }
 
-enum AppResponse<T: Serialize> {
-    Success((StatusCode, Json<T>)),
-    Error((StatusCode, String)),
-}
-
-impl<T: Serialize> IntoResponse for AppResponse<T> {
-    fn into_response(self) -> Response {
+impl<T: Serialize> IntoResponse for Response<T> {
+    fn into_response(self) -> AxumRes {
         match self {
-            AppResponse::Success((code, json)) => (code, json).into_response(),
-            AppResponse::Error((code, json)) => (code, json).into_response(),
+            Response::Success(json) => (StatusCode::OK, Json(json)).into_response(),
+            Response::Error(error) => (StatusCode::INTERNAL_SERVER_ERROR, error).into_response(),
         }
-    }
-}
-
-async fn document(
-    Path(slug): Path<String>,
-    State(AppState { db, auth }): State<AppState>,
-) -> AppResponse<Document> {
-    let document_query = sqlx::query_as!(Document, "select * from document where slug = $1", slug)
-        .fetch_one(&db)
-        .await;
-    match document_query {
-        Ok(document) => AppResponse::Success((StatusCode::OK, Json(document))),
-        Err(err) => AppResponse::Error((StatusCode::INTERNAL_SERVER_ERROR, err.to_string())),
     }
 }

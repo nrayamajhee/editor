@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select * from document",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "7d17de7a894d8ae14d657af5c8660a2dcad95063488525811829ea83d2d5a82d"
+}
