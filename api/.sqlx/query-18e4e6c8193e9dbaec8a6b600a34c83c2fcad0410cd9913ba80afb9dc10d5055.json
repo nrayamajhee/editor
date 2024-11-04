@@ -1,15 +1,15 @@
 {
   "db_name": "PostgreSQL",
-  "query": "update document set content = $1 where slug = $2",
+  "query": "update document set content = $1 where id = $2",
   "describe": {
     "columns": [],
     "parameters": {
       "Left": [
         "Text",
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": []
   },
-  "hash": "a90d9b49d200ee44d8a8797e9a6b016da538fd95c2d41c387bac9faf497f607e"
+  "hash": "18e4e6c8193e9dbaec8a6b600a34c83c2fcad0410cd9913ba80afb9dc10d5055"
 }

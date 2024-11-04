@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./main.css";
+import "./markdown.css";
 import Editor from "./Editor";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { IconContext } from "react-icons";
@@ -15,14 +16,28 @@ import {
 
 const queryClient = new QueryClient();
 
+export type QueryErr = {
+  status: number;
+  error: string;
+};
+
 export const useQuery = (key: string | string[], path: string) =>
   useReactQuery({
     queryKey: typeof key === "string" ? [key] : key,
     queryFn: async () => {
       let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`);
-      let json = await res.json();
-      return json;
+      if (!res.ok) {
+        throw {
+          status: res.status,
+          error: res.body,
+        };
+      } else {
+        let json = await res.json();
+        return json;
+      }
     },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
 export const useMutation = <T extends unknown>(

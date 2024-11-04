@@ -1,0 +1,91 @@
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  font-weight: bold;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6,
+.markdown p {
+  margin-bottom: 1rem;
+}
+.markdown table,
+.markdown ul,
+.markdown ol {
+  margin: 1rem 0;
+}
+.markdown h1 {
+  font-size: 2rem;
+}
+.markdown h2 {
+  font-size: 1.8rem;
+}
+.markdown h3 {
+  font-size: 1.6rem;
+}
+.markdown h4 {
+  font-size: 1.4rem;
+}
+.markdown h5 {
+  font-size: 1.2rem;
+}
+.markdown h6 {
+  font-size: 1rem;
+}
+.markdown ul,
+.markdown ol {
+  list-style-position: inside;
+}
+.markdown ul {
+  list-style-type: disc;
+}
+.markdown ol {
+  list-style-type: numeric;
+}
+.markdown .contains-task-list {
+  list-style: none;
+}
+.markdown code {
+  background: var(--bg-1);
+  padding: 1px 8px;
+  line-height: 1;
+  border-radius: 5px;
+}
+.markdown blockquote {
+  padding-left: 10px;
+  border-left: 4px solid var(--bg-1);
+}
+.markdown pre {
+  background: var(--bg-1);
+  paddign: 5px;
+  border-radius: 5px;
+}
+.markdown pre code {
+  background: transparent;
+}
+.markdown hr {
+  border-top-color: var(--bg-1);
+}
+.markdown th,
+.markdown td {
+  padding: 5px 10px;
+}
+.markdown thead tr {
+  background: var(--bg-1);
+}
+.markdown tbody tr:nth-child(odd) {
+  background: var(--bg-2);
+}
+.markdown a {
+  color: #5f87e4;
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select * from document",
+  "query": "insert into document (title, content) values ($1, $2) returning *",
   "describe": {
     "columns": [
       {
@@ -30,7 +30,10 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Text",
+        "Text"
+      ]
     },
     "nullable": [
       false,
@@ -40,5 +43,5 @@
       false
     ]
   },
-  "hash": "7d17de7a894d8ae14d657af5c8660a2dcad95063488525811829ea83d2d5a82d"
+  "hash": "0c7883472e4f45c0f720da1ec26901bcc9374be20b3700f4bb2454d964e7b1ea"
 }
