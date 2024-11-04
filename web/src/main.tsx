@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./main.css";
 import "./markdown.css";
 import Editor from "./Editor";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { IconContext } from "react-icons";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./Dashboard";
@@ -13,19 +13,32 @@ import {
   useQuery as useReactQuery,
   useMutation as useReactMutation,
 } from "@tanstack/react-query";
+import Login from "./Login";
+import NotFound from "./NotFound";
+
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const queryClient = new QueryClient();
 
 export type QueryErr = {
   status: number;
   error: string;
-};
+} & Error;
 
-export const useQuery = (key: string | string[], path: string) =>
-  useReactQuery({
+export const useQuery = <T extends unknown>(
+  key: string | string[],
+  path: string,
+) => {
+  const { getToken } = useAuth();
+  return useReactQuery({
     queryKey: typeof key === "string" ? [key] : key,
     queryFn: async () => {
-      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`);
+      let token = await getToken();
+      let res = await fetch(`${BASE_URL}${path}`, {
+        headers: {
+          Authorization: token ?? "",
+        },
+      });
       if (!res.ok) {
         throw {
           status: res.status,
@@ -33,24 +46,28 @@ export const useQuery = (key: string | string[], path: string) =>
         };
       } else {
         let json = await res.json();
-        return json;
+        return json as T;
       }
     },
     retry: false,
     refetchOnWindowFocus: false,
   });
+};
 
 export const useMutation = <T extends unknown>(
   key: string | string[],
   path: string,
-) =>
-  useReactMutation({
+) => {
+  const { getToken } = useAuth();
+  return useReactMutation({
     mutationKey: typeof key === "string" ? [key] : key,
     mutationFn: async (body: T) => {
-      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+      let token = await getToken();
+      let res = await fetch(`${BASE_URL}${path}`, {
         method: "post",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ?? "",
         },
         body: JSON.stringify(body),
       });
@@ -58,21 +75,35 @@ export const useMutation = <T extends unknown>(
       return json;
     },
   });
+};
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <Dashboard />,
+    },
+    {
+      path: "/document/:id",
+      element: <Editor />,
+    },
+    {
+      path: "/login",
+      element: <Login />,
+    },
+    {
+      path: "*",
+      element: <NotFound />,
+    },
+  ],
   {
-    path: "/",
-    element: <Dashboard />,
+    basename: import.meta.env.PROD ? "/editor" : "",
   },
-  {
-    path: "/document/:slug",
-    element: <Editor />,
-  },
-]);
+);
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
-  throw new Error("Add your Clerk publishable key to the .env.local file");
+  throw new Error("No clerk key in env");
 }
 
 createRoot(document.getElementById("root")!).render(

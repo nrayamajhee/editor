@@ -46,7 +46,9 @@ export default function Profile({ variant }: ProfileProps) {
             className="flex flex-col items-stretch bg-zinc-700 rounded-md p-2 gap-2 min-w-32"
           >
             <p className="px-2 py-1">{user?.firstName}</p>
-            <SignOutButton>
+            <SignOutButton
+              redirectUrl={import.meta.env.PROD ? "/editor" : undefined}
+            >
               <p className="px-2 py-1 rounded-md hover:bg-zinc-800 cursor-pointer">
                 Sign out
               </p>

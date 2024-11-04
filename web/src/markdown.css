@@ -67,7 +67,7 @@ body {
 }
 .markdown pre {
   background: var(--bg-1);
-  paddign: 5px;
+  padding: 5px;
   border-radius: 5px;
 }
 .markdown pre code {

@@ -1,12 +1,11 @@
 use crate::{AppState, Response};
-use anyhow::Result;
 use axum::{
     extract::{Path, State},
     Json,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::query_as;
+use sqlx::{query, query_as};
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -25,7 +24,8 @@ pub struct Document {
 #[ts(export)]
 #[derive(Deserialize)]
 pub struct UpdateDocument {
-    content: String,
+    content: Option<String>,
+    title: Option<String>,
 }
 
 #[derive(TS)]
@@ -49,25 +49,35 @@ pub async fn get(
     }
 }
 
-#[axum::debug_handler]
 pub async fn update(
     Path(id): Path<Uuid>,
     State(AppState { db }): State<AppState>,
     Json(doc): Json<UpdateDocument>,
 ) -> Response<Document> {
-    let document_query: Result<_, sqlx::Error> = try {
-        query_as!(
-            Document,
+    if doc.content.is_some() {
+        query!(
             "update document set content = $1 where id = $2",
             doc.content,
             id
         )
         .execute(&db)
-        .await?;
-        query_as!(Document, "select * from document where id = $1", id)
-            .fetch_one(&db)
-            .await?
-    };
+        .await
+        .unwrap();
+    }
+    if doc.title.is_some() {
+        query_as!(
+            Document,
+            "update document set title = $1 where id = $2",
+            doc.title,
+            id
+        )
+        .execute(&db)
+        .await
+        .unwrap();
+    }
+    let document_query = query_as!(Document, "select * from document where id = $1", id)
+        .fetch_one(&db)
+        .await;
     match document_query {
         Ok(document) => Response::Success(document),
         Err(err) => Response::Error(err.to_string()),

@@ -1,13 +1,13 @@
 import { Document as Doc } from "schema";
 import { QueryErr, useMutation, useQuery } from "./main";
-import { Link, useNavigate } from "react-router-dom";
-import { FiPlus } from "react-icons/fi";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { FiFilePlus } from "react-icons/fi";
 import Profile from "./components/Profile";
 import { formatDate } from "./utils";
 import { useUser } from "@clerk/clerk-react";
 
 const Dashboard = () => {
-  const docQuery = useQuery("documents", "/documents");
+  const docQuery = useQuery<Doc[]>("documents", "/documents");
   const navigate = useNavigate();
   const { user } = useUser();
   const createDoc = useMutation("create_document", "/documents");
@@ -16,7 +16,7 @@ const Dashboard = () => {
   }
   if (docQuery.isError) {
     if ((docQuery.error as QueryErr).status === 401) {
-      return <Profile />;
+      return <Navigate to="/login" />;
     } else {
       return <>Error</>;
     }
@@ -30,10 +30,10 @@ const Dashboard = () => {
   };
   return (
     <div className="mx-auto max-w-[960px] p-8 flex flex-col gap-8">
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <div className="flex flex-col">
-          <p className="text-md font-medium">Welcome</p>
-          <p className="text-xl font-semibold">{user?.fullName}</p>
+          <p className="text-xl font-medium">Welcome</p>
+          <p className="text-2xl font-semibold">{user?.fullName}</p>
         </div>
         <Profile variant="big" />
       </div>
@@ -47,14 +47,13 @@ const Dashboard = () => {
           .map((document: Doc) => (
             <Document document={document} key={document.id} />
           ))}
-        <div>
-          <button
-            onClick={handleNew}
-            className="bg-zinc-700 rounded-md p-2  w-full h-full flex items-center justify-center gap-2"
-          >
-            <FiPlus /> <p>New File</p>
-          </button>
-        </div>
+        <button
+          onClick={handleNew}
+          className="bg-zinc-700 rounded-md p-2  w-full flex items-center justify-center gap-2 min-h-[5rem]"
+        >
+          <FiFilePlus />
+          <p>New File</p>
+        </button>
       </div>
     </div>
   );

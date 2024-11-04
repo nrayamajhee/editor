@@ -1,4 +1,4 @@
-name: Deploy static content to Pages
+name: Main CI
 
 on:
   push:
@@ -43,6 +43,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - run: |
+          cp -r ../api/bindings ./bindings
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -50,15 +52,21 @@ jobs:
           cache: "npm"
           cache-dependency-path: "web/package-lock.json"
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm install schema
+          npm ci
       - name: Build
         env:
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-        run: npm run build
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        run: |
+          npm run build &&
+          cp ./dist/index.html ./dist/404.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: "web/dist"
+
   backend:
     runs-on: ubuntu-latest
     needs: changes
@@ -72,25 +80,29 @@ jobs:
       - name: Setup rust
         run: rustup update stable && rustup default stable
       - name: Build
-        run: cargo build --verbose
-  pages:
+        run: cargo check --verbose
+  deploy-frontent:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    needs: frontend
     runs-on: ubuntu-latest
-    needs: "frontend"
+    defaults:
+      run:
+        working-directory: web
+
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-  fly:
+  deploy-backend:
     needs: backend
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web
+        working-directory: api
     steps:
       - uses: actions/checkout@v2
       - uses: superfly/flyctl-actions/setup-flyctl@master

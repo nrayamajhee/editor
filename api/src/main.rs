@@ -1,9 +1,11 @@
-#![feature(try_blocks)]
 mod document;
 
 use anyhow::Result;
 use axum::{
-    http::StatusCode,
+    http::{
+        header::{ACCEPT, AUTHORIZATION},
+        HeaderValue, Method, StatusCode,
+    },
     response::{IntoResponse, Response as AxumRes},
     routing::get,
     Json, Router,
@@ -11,10 +13,8 @@ use axum::{
 use clerk_rs::{clerk::Clerk, ClerkConfiguration};
 use dotenv::dotenv;
 use serde::Serialize;
-use sqlx::{
-    postgres::{PgPoolOptions},
-    PgPool,
-};
+use sqlx::{postgres::PgPoolOptions, PgPool};
+use tower_http::cors::CorsLayer;
 
 use clerk_rs::validators::{axum::ClerkLayer, jwks::MemoryCacheJwksProvider};
 
@@ -44,12 +44,18 @@ async fn main() -> Result<()> {
         .route("/", get(root))
         .route("/documents", get(document::get_all).post(document::create))
         .route("/document/:slug", get(document::get).post(document::update))
-        .with_state(AppState { db })
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk),
             None,
             true,
-        ));
+        ))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(env_var!("APP_URL").parse::<HeaderValue>()?)
+                .allow_headers([AUTHORIZATION, ACCEPT])
+                .allow_methods([Method::GET, Method::POST]),
+        )
+        .with_state(AppState { db });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
     axum::serve(listener, app).await?;
     Ok(())
