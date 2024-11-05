@@ -3,7 +3,7 @@ mod document;
 use anyhow::Result;
 use axum::{
     http::{
-        header::{ACCEPT, AUTHORIZATION},
+        header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
         HeaderValue, Method, StatusCode,
     },
     response::{IntoResponse, Response as AxumRes},
@@ -52,7 +52,7 @@ async fn main() -> Result<()> {
         .layer(
             CorsLayer::new()
                 .allow_origin(env_var!("APP_URL").parse::<HeaderValue>()?)
-                .allow_headers([AUTHORIZATION, ACCEPT])
+                .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
                 .allow_methods([Method::GET, Method::POST]),
         )
         .with_state(AppState { db });
