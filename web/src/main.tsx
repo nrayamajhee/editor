@@ -15,8 +15,7 @@ import {
 } from "@tanstack/react-query";
 import Login from "./Login";
 import NotFound from "./NotFound";
-
-const BASE_URL = import.meta.env.VITE_API_URL;
+import Pictures from "./Pictures";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +33,7 @@ export const useQuery = <T extends unknown>(
     queryKey: typeof key === "string" ? [key] : key,
     queryFn: async () => {
       let token = await getToken();
-      let res = await fetch(`${BASE_URL}${path}`, {
+      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
         headers: {
           Authorization: token ?? "",
         },
@@ -63,13 +62,34 @@ export const useMutation = <T extends unknown>(
     mutationKey: typeof key === "string" ? [key] : key,
     mutationFn: async (body: T) => {
       let token = await getToken();
-      let res = await fetch(`${BASE_URL}${path}`, {
+      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
         method: "post",
         headers: {
           "Content-Type": "application/json",
           Authorization: token ?? "",
         },
         body: JSON.stringify(body),
+      });
+      let json = await res.json();
+      return json;
+    },
+  });
+};
+
+export const useFile = (key: string | string[], path: string) => {
+  const { getToken } = useAuth();
+  return useReactMutation({
+    mutationKey: typeof key === "string" ? [key] : key,
+    mutationFn: async (file: File) => {
+      let token = await getToken();
+      let body = new FormData();
+      body.append("file", file);
+      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+        method: "post",
+        headers: {
+          Authorization: token ?? "",
+        },
+        body,
       });
       let json = await res.json();
       return json;
@@ -90,6 +110,10 @@ const router = createBrowserRouter(
     {
       path: "/login",
       element: <Login />,
+    },
+    {
+      path: "/pictures",
+      element: <Pictures />,
     },
     {
       path: "*",

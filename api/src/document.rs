@@ -1,4 +1,4 @@
-use crate::{AppState, Response};
+use crate::{error::AppResult, AppState};
 use axum::{
     extract::{Path, State},
     Json,
@@ -36,31 +36,25 @@ pub struct NewDocument {
     content: String,
 }
 
-pub async fn get(
-    Path(id): Path<Uuid>,
-    State(AppState { db }): State<AppState>,
-) -> Response<Document> {
-    let document_query = query_as!(Document, "select * from document where id = $1", id)
-        .fetch_one(&db)
-        .await;
-    match document_query {
-        Ok(document) => Response::Success(document),
-        Err(err) => Response::Error(err.to_string()),
-    }
+pub async fn get(Path(id): Path<Uuid>, State(app): State<AppState>) -> AppResult<Document> {
+    let document = query_as!(Document, "select * from document where id = $1", id)
+        .fetch_one(&app.db)
+        .await?;
+    Ok(Json(document))
 }
 
 pub async fn update(
     Path(id): Path<Uuid>,
-    State(AppState { db }): State<AppState>,
+    State(app): State<AppState>,
     Json(doc): Json<UpdateDocument>,
-) -> Response<Document> {
+) -> AppResult<Document> {
     if doc.content.is_some() {
         query!(
             "update document set content = $1 where id = $2",
             doc.content,
             id
         )
-        .execute(&db)
+        .execute(&app.db)
         .await
         .unwrap();
     }
@@ -71,43 +65,34 @@ pub async fn update(
             doc.title,
             id
         )
-        .execute(&db)
+        .execute(&app.db)
         .await
         .unwrap();
     }
-    let document_query = query_as!(Document, "select * from document where id = $1", id)
-        .fetch_one(&db)
-        .await;
-    match document_query {
-        Ok(document) => Response::Success(document),
-        Err(err) => Response::Error(err.to_string()),
-    }
+    let document = query_as!(Document, "select * from document where id = $1", id)
+        .fetch_one(&app.db)
+        .await?;
+    Ok(Json(document))
 }
 
 pub async fn create(
-    State(AppState { db }): State<AppState>,
+    State(app): State<AppState>,
     Json(doc): Json<NewDocument>,
-) -> Response<Document> {
-    let document_query = query_as!(
+) -> AppResult<Document> {
+    let document = query_as!(
         Document,
         "insert into document (title, content) values ($1, $2) returning *",
         doc.title,
         doc.content,
     )
-    .fetch_one(&db)
-    .await;
-    match document_query {
-        Ok(document) => Response::Success(document),
-        Err(err) => Response::Error(err.to_string()),
-    }
+    .fetch_one(&app.db)
+    .await?;
+    Ok(Json(document))
 }
 
-pub async fn get_all(State(AppState { db }): State<AppState>) -> Response<Vec<Document>> {
-    let query = query_as!(Document, "select * from document")
-        .fetch_all(&db)
-        .await;
-    match query {
-        Ok(documents) => Response::Success(documents),
-        Err(err) => Response::Error(err.to_string()),
-    }
+pub async fn get_all(State(app): State<AppState>) -> AppResult<Vec<Document>> {
+    let documents = query_as!(Document, "select * from document")
+        .fetch_all(&app.db)
+        .await?;
+    Ok(Json(documents))
 }
