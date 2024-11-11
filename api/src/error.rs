@@ -4,7 +4,8 @@ use axum::{
     Json,
 };
 
-pub type AppResult<T> = Result<Json<T>, AppError>;
+pub type JsonRes<T> = Result<Json<T>, AppError>;
+pub type Res<T> = Result<T, AppError>;
 
 pub struct AppError(anyhow::Error);
 

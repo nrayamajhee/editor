@@ -1,10 +1,11 @@
-import { Document as Doc } from "schema";
+import { Document as Doc, CurrentWeather } from "schema";
 import { QueryErr, useMutation, useQuery } from "./main";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiFilePlus } from "react-icons/fi";
 import Profile from "./components/Profile";
 import { formatDate } from "./utils";
 import { useUser } from "@clerk/clerk-react";
+import { useCallback, useEffect, useState } from "react";
 
 const Dashboard = () => {
   const docQuery = useQuery<Doc[]>("documents", "/documents");
@@ -37,6 +38,7 @@ const Dashboard = () => {
         </div>
         <Profile variant="big" />
       </div>
+      <Weather />
       <div className="grid grid-cols-3 gap-4">
         {docQuery.data
           ?.sort(
@@ -75,6 +77,39 @@ const Document = ({ document }: DocumentProp) => {
         </div>
       </div>
     </Link>
+  );
+};
+
+type Coords = {
+  latitude: number;
+  longitude: number;
+};
+
+const Weather = () => {
+  const [loc, setLoc] = useState<Coords | undefined>();
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((location) => {
+      let { latitude, longitude } = location.coords;
+      setLoc({
+        latitude,
+        longitude,
+      });
+    });
+  }, []);
+  const weatherQuery = useQuery<CurrentWeather>(
+    "weather",
+    `/weather?lat=${loc?.latitude}&long=${loc?.longitude}&unit=F`,
+    !!loc,
+  );
+  if (weatherQuery.isLoading || !loc) return <>loading</>;
+  if (weatherQuery.isError || !weatherQuery.data) return <>Error</>;
+  const { time, temperature_2m, wind_speed_10m } = weatherQuery.data;
+  return (
+    <div>
+      <p>{time}</p>
+      <p>{temperature_2m}</p>
+      <p>{wind_speed_10m}</p>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-use crate::{error::AppResult, AppState};
+use crate::{error::JsonRes, AppState};
 use axum::{
     extract::{Path, State},
     Json,
@@ -36,7 +36,7 @@ pub struct NewDocument {
     content: String,
 }
 
-pub async fn get(Path(id): Path<Uuid>, State(app): State<AppState>) -> AppResult<Document> {
+pub async fn get(Path(id): Path<Uuid>, State(app): State<AppState>) -> JsonRes<Document> {
     let document = query_as!(Document, "select * from document where id = $1", id)
         .fetch_one(&app.db)
         .await?;
@@ -47,7 +47,7 @@ pub async fn update(
     Path(id): Path<Uuid>,
     State(app): State<AppState>,
     Json(doc): Json<UpdateDocument>,
-) -> AppResult<Document> {
+) -> JsonRes<Document> {
     if doc.content.is_some() {
         query!(
             "update document set content = $1 where id = $2",
@@ -78,7 +78,7 @@ pub async fn update(
 pub async fn create(
     State(app): State<AppState>,
     Json(doc): Json<NewDocument>,
-) -> AppResult<Document> {
+) -> JsonRes<Document> {
     let document = query_as!(
         Document,
         "insert into document (title, content) values ($1, $2) returning *",
@@ -90,7 +90,7 @@ pub async fn create(
     Ok(Json(document))
 }
 
-pub async fn get_all(State(app): State<AppState>) -> AppResult<Vec<Document>> {
+pub async fn get_all(State(app): State<AppState>) -> JsonRes<Vec<Document>> {
     let documents = query_as!(Document, "select * from document")
         .fetch_all(&app.db)
         .await?;
