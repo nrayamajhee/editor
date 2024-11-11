@@ -7,26 +7,24 @@ use axum::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
         HeaderValue, Method,
     },
-    response::Response,
     routing::{get, post},
     Json, Router,
 };
 use clerk_rs::validators::{axum::ClerkLayer, jwks::MemoryCacheJwksProvider};
 use clerk_rs::{clerk::Clerk, ClerkConfiguration};
 use dotenv::dotenv;
-use error::{AppError, JsonRes, Res};
+use error::{JsonRes, Res};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::{collections::HashMap, path::PathBuf};
+use std::io::prelude::*;
+use std::{fs::File, path::PathBuf};
 use tower_http::cors::CorsLayer;
 use ts_rs::TS;
-use utapi_rs::UtApi;
 
 #[derive(Clone)]
 struct AppState {
     db: PgPool,
-    utapi: UtApi,
     reqwest: Client,
 }
 
@@ -37,15 +35,13 @@ macro_rules! env_var {
     }};
 }
 
-async fn upload(State(state): State<AppState>, mut multipart: Multipart) -> Result<(), AppError> {
-    let file = multipart.next_field().await.unwrap().unwrap();
-    // let body = state.utapi.get_usage_info().await.unwrap();
-    // let name = file.name().unwrap();
-    // state
-    //     .utapi
-    //     .upload_files(vec![FileObj { name, path }], None, true)
-    //     .await
-    //     .unwrap();
+async fn upload(State(app): State<AppState>, mut multipart: Multipart) -> Res<()> {
+    let file = multipart.next_field().await?.unwrap();
+    let name = file.file_name().unwrap().to_owned();
+    let path = format!("/assets/{}", name);
+    let bytes = file.bytes().await?;
+    let mut file = File::create(path.clone())?;
+    file.write(&bytes[..])?;
     Ok(())
 }
 
@@ -65,19 +61,18 @@ async fn main() -> Result<()> {
         .await?;
     let config = ClerkConfiguration::new(None, None, Some(env_var!("CLERK_SECRET")), None);
     let clerk = Clerk::new(config);
-    let utapi = UtApi::new(Some(env_var!("UP_TOKEN")));
     let reqwest = Client::new();
     let app = Router::new()
         .route("/documents", get(document::get_all).post(document::create))
         .route("/document/:id", get(document::get).post(document::update))
         .route("/upload", post(upload))
+        .route("/weather", get(weather))
+        .nest_service("/assets", ServeDir::new("/assets"))
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk),
             None,
             true,
         ))
-        // .route("/upload", get(list_files).post(upload_files))
-        .route("/weather", get(weather))
         .route("/", get(root))
         .layer(
             CorsLayer::new()
@@ -85,7 +80,7 @@ async fn main() -> Result<()> {
                 .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
                 .allow_methods([Method::GET, Method::POST]),
         )
-        .with_state(AppState { db, utapi, reqwest });
+        .with_state(AppState { db, reqwest });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
     axum::serve(listener, app).await?;
     Ok(())
@@ -122,7 +117,6 @@ struct WeatherResponse {
     current: CurrentWeather,
 }
 
-#[axum::debug_handler]
 async fn weather(State(app): State<AppState>, Query(query): Query<Q>) -> JsonRes<CurrentWeather> {
     let res = app
         .reqwest

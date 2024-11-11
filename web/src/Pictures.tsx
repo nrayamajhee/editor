@@ -4,11 +4,9 @@ import { useFile } from "./main";
 
 export default function Pictures() {
   const upload = useFile("upload_file", "/upload");
-  // const endpoint = "http://localhost:7000/api/uploadthing";
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     upload.mutate(file);
-    // Do something with the files
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   return (

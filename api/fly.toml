@@ -20,3 +20,8 @@ primary_region = 'sjc'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+[mounts]
+  source = "api-lively-assets"
+utapi-rs = "0.1.2"
+  destination = "/assets"
