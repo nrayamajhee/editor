@@ -55,8 +55,7 @@ pub async fn update(
             id
         )
         .execute(&app.db)
-        .await
-        .unwrap();
+        .await?;
     }
     if doc.title.is_some() {
         query_as!(
@@ -66,8 +65,7 @@ pub async fn update(
             id
         )
         .execute(&app.db)
-        .await
-        .unwrap();
+        .await?;
     }
     let document = query_as!(Document, "select * from document where id = $1", id)
         .fetch_one(&app.db)

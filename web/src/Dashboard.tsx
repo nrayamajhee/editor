@@ -1,7 +1,7 @@
 import { Document as Doc, Weather as W } from "schema";
 import { QueryErr, useMutation, useQuery } from "./main";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { FiFilePlus } from "react-icons/fi";
+import { FiFile, FiFilePlus, FiPlus, FiPlusSquare } from "react-icons/fi";
 import Profile from "./components/Profile";
 import { formatDate, formatTime } from "./utils";
 import { useUser } from "@clerk/clerk-react";
@@ -12,6 +12,8 @@ import {
   WiDaySunny,
   WiDaySunnyOvercast,
 } from "react-icons/wi";
+
+const docStyle = " bg-zinc-700/50 hover:bg-zinc-700/80 transition-colors rounded-2xl ";
 
 const Dashboard = () => {
   const docQuery = useQuery<Doc[]>("documents", "/documents");
@@ -35,38 +37,44 @@ const Dashboard = () => {
     });
     navigate(`/document/${doc.id}`);
   };
-  const linkStyle = "py-4 px-8 border-b-4 border-b-sky-400/20 hover:border-b-sky-400/50 transition-colors";
+  const linkStyle =
+    "py-4 px-8 border-b-4 border-b-sky-400/20 hover:border-b-sky-400/50 transition-colors";
   return (
-    <div className="mx-auto max-w-[960px] p-8 flex flex-col">
-      <div className="flex justify-between px-16">
-        <Weather />
-        <Profile variant="big" />
-      </div>
-      <nav className="flex gap-1 px-8">
-        <Link className={linkStyle} to="/">
-          Documents
-        </Link>
-        <Link className={linkStyle} to="/pictures">
-          Pictures
-        </Link>
-      </nav>
-      <div className="grid grid-cols-3 gap-8 p-8 border-t-sky-400/20 border-t-2 rounded-3xl">
-        {docQuery.data
-          ?.sort(
-            (a: Doc, b: Doc) =>
-              new Date(a.updated_at).getTime() -
-              new Date(b.updated_at).getTime(),
-          )
-          .map((document: Doc) => (
-            <Document document={document} key={document.id} />
-          ))}
-        <button
-          onClick={handleNew}
-          className="bg-zinc-700 rounded-md p-2  w-full flex items-center justify-center gap-2 min-h-[5rem]"
-        >
-          <FiFilePlus />
-          <p>New File</p>
-        </button>
+    <div className="min-h-screen bg-zinc-900">
+      <div className="mx-auto max-w-[960px] p-8 flex flex-col">
+        <div className="flex justify-between px-16">
+          <Weather />
+          <Profile variant="big" />
+        </div>
+        <nav className="flex gap-1 px-8">
+          <Link className={linkStyle} to="/">
+            Documents
+          </Link>
+          <Link className={linkStyle} to="/pictures">
+            Pictures
+          </Link>
+        </nav>
+        <div className="grid grid-cols-3 gap-8 p-8 border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
+          {docQuery.data
+            ?.sort(
+              (a: Doc, b: Doc) =>
+                new Date(a.updated_at).getTime() -
+                new Date(b.updated_at).getTime(),
+            )
+            .map((document: Doc) => (
+              <Document document={document} key={document.id} />
+            ))}
+          <button
+            onClick={handleNew}
+            className={
+              "w-full flex items-center justify-center gap-2 min-h-[5rem]" +
+              docStyle
+            }
+          >
+            <FiFile />
+            <p>New File</p>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -79,7 +87,7 @@ type DocumentProp = {
 const Document = ({ document }: DocumentProp) => {
   return (
     <Link to={`document/${document.id}`}>
-      <div className="bg-zinc-700 rounded-md px-8 py-4 flex flex-cols">
+      <div className={docStyle + "px-8 py-4 flex flex-cols"}>
         <div className="flex flex-col gap-2">
           <p className="font-semibold text-xl">{document.title}</p>
           <p className="font-medium text-sm">
