@@ -22,6 +22,5 @@ primary_region = 'sjc'
   cpus = 1
 
 [mounts]
-  source = "api-lively-assets"
-utapi-rs = "0.1.2"
+  source = "editor_assets"
   destination = "/assets"

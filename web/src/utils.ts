@@ -8,3 +8,11 @@ export const formatDate = (date: string | Date) => {
     minute: "numeric",
   }).format(d);
 };
+
+export const formatTime = (date: string | Date) => {
+  let d = typeof date === "string" ? new Date(date) : date;
+  return Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+  }).format(d);
+};
