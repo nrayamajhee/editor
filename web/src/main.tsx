@@ -16,6 +16,7 @@ import {
 import Login from "./Login";
 import NotFound from "./NotFound";
 import Pictures from "./Pictures";
+import Wrapper from "./components/Wrapper";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +37,7 @@ export const useQuery = <T extends unknown>(
       let token = await getToken();
       let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
         headers: {
-          Authorization: token ?? "",
+          Authorization: token ? `Bearer ${token}` : "",
         },
       });
       if (!res.ok) {
@@ -78,6 +79,25 @@ export const useMutation = <T extends unknown>(
   });
 };
 
+export const useDelete = (key: string | string[], path: string) => {
+  const { getToken } = useAuth();
+  return useReactMutation({
+    mutationKey: typeof key === "string" ? [key] : key,
+    mutationFn: async () => {
+      let token = await getToken();
+      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+        method: "delete",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ?? "",
+        },
+      });
+      let json = await res.json();
+      return json;
+    },
+  });
+};
+
 export const useFile = (key: string | string[], path: string) => {
   const { getToken } = useAuth();
   return useReactMutation({
@@ -103,19 +123,25 @@ const router = createBrowserRouter(
   [
     {
       path: "/",
-      element: <Dashboard />,
-    },
-    {
-      path: "/document/:id",
-      element: <Editor />,
+      element: <Wrapper />,
+      children: [
+        {
+          index: true,
+          element: <Dashboard />,
+        },
+        {
+          path: "pictures",
+          element: <Pictures />,
+        },
+      ],
     },
     {
       path: "/login",
       element: <Login />,
     },
     {
-      path: "/pictures",
-      element: <Pictures />,
+      path: "/document/:id",
+      element: <Editor />,
     },
     {
       path: "*",

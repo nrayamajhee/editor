@@ -9,13 +9,21 @@ axum = { version = "0.7.7", features = ["macros", "multipart"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 clerk-rs = { version = "0.4.0", features = ["axum"] }
 dotenv = "0.15.0"
-reqwest = "0.12.9"
-rust-s3 = "0.35.1"
+reqwest = { version = "0.12.9", features = [
+  "rustls-tls",
+  "json",
+], default-features = false }
 serde = { version = "1.0.214", features = ["derive"] }
-sqlx = {version = "0.8.2", features = ["runtime-tokio", "tls-rustls-ring", "postgres","uuid","chrono","derive"]}
+sqlx = { version = "0.8.2", features = [
+  "runtime-tokio",
+  "tls-rustls-ring",
+  "postgres",
+  "uuid",
+  "chrono",
+  "derive",
+] }
 strum = "0.26.3"
 strum_macros = "0.26.4"
-time = { version = "0.3.36", features = ["serde"] }
 tokio = { version = "1.41.0", features = ["full"] }
 tower-http = { version = "0.6.1", features = ["cors", "fs"] }
 tracing = "0.1.40"

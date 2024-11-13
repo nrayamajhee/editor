@@ -88,6 +88,17 @@ pub async fn create(
     Ok(Json(document))
 }
 
+pub async fn delete(Path(id): Path<Uuid>, State(app): State<AppState>) -> JsonRes<Document> {
+    let document = query_as!(
+        Document,
+        "delete from document where id = $1 returning *",
+        id
+    )
+    .fetch_one(&app.db)
+    .await?;
+    Ok(Json(document))
+}
+
 pub async fn get_all(State(app): State<AppState>) -> JsonRes<Vec<Document>> {
     let documents = query_as!(Document, "select * from document")
         .fetch_all(&app.db)
