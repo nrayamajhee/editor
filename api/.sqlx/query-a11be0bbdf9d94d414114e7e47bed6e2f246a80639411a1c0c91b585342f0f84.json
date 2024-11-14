@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "insert into weather (\n               id,\n               location,\n               temperature_2m,\n               wind_speed_10m,\n               weather_code,\n               relative_humidity_2m,\n               apparent_temperature,\n               precipitation_probability\n            ) values ($1, $2, $3, $4, $5, $6, $7, $8) returning *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "location",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "temperature_2m",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "wind_speed_10m",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 4,
+        "name": "relative_humidity_2m",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 5,
+        "name": "apparent_temperature",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 6,
+        "name": "precipitation_probability",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 7,
+        "name": "weather_code",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Float8",
+        "Float8",
+        "Int4",
+        "Float8",
+        "Float8",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a11be0bbdf9d94d414114e7e47bed6e2f246a80639411a1c0c91b585342f0f84"
+}

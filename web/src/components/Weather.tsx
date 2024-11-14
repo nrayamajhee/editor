@@ -40,22 +40,19 @@ export default function Weather() {
   }, []);
   const weatherQuery = useQuery<W>(
     "weather",
-    `/weather?lat=${loc?.latitude}&long=${loc?.longitude}&unit=F`,
+    `/weather?lat=${loc?.latitude}&lon=${loc?.longitude}&unit=F`,
     !!loc,
   );
   if (weatherQuery.isLoading || !loc) return <>loading</>;
   if (weatherQuery.isError || !weatherQuery.data) return <>Error</>;
-  const { current, location } = weatherQuery.data;
   return (
     <div className="grid grid-cols-[1fr_48px] gap-x-4 gap-y-2 items-center">
       <p className="text-xl">{formatTime(new Date())}</p>
       <div className="row-span-3">
-        <WeatherIcon code={current.weather_code} size={48} />
+        <WeatherIcon code={weatherQuery.data.weather_code} size={48} />
       </div>
-      <p className="text-4xl">{current.temperature_2m}°F</p>
-      <p className="text-xl">
-        {location.address.city ?? location.address.county}
-      </p>
+      <p className="text-4xl">{weatherQuery.data.temperature_2m}°F</p>
+      <p className="text-xl">{weatherQuery.data.location}</p>
     </div>
   );
 }

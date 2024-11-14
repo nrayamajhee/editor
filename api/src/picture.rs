@@ -12,7 +12,6 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::{
-    document::Document,
     error::{JsonRes, Res},
     AppState,
 };

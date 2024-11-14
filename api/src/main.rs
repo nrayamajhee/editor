@@ -31,13 +31,12 @@ use std::{
     sync::{Arc, Mutex},
 };
 use tower_http::{cors::CorsLayer, services::ServeDir};
-use weather::{Weather, WeatherHash};
+use weather::Weather;
 
 #[derive(Clone)]
 struct AppState {
     db: PgPool,
     reqwest: Client,
-    weather_cache: Arc<Mutex<HashMap<WeatherHash, Weather>>>,
 }
 
 #[derive(Deserialize)]
@@ -56,7 +55,6 @@ async fn main() -> Result<()> {
         .await?;
     let config = ClerkConfiguration::new(None, None, Some(env_var!("CLERK_SECRET")), None);
     let clerk = Clerk::new(config);
-    let weather_cache = Arc::new(Mutex::new(HashMap::new()));
     let reqwest = Client::new();
     let app = Router::new()
         .route("/documents", get(document::get_all).post(document::create))
@@ -81,11 +79,7 @@ async fn main() -> Result<()> {
                 .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
                 .allow_methods([Method::GET, Method::POST, Method::DELETE]),
         )
-        .with_state(AppState {
-            db,
-            reqwest,
-            weather_cache,
-        });
+        .with_state(AppState { db, reqwest });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
     axum::serve(listener, app).await?;
     Ok(())

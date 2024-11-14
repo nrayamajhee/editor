@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "delete from weather where created_at < (now() - INTERVAL '1 min')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "a1679c43d60239c078ec7814c6f70bbc94d774d8d3a8752ae97ba2e4532ffb3c"
+}

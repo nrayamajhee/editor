@@ -103,7 +103,7 @@ function Editor() {
     ["document", id ?? ""],
     `/document/${id}`,
   );
-  const [text, setText] = useState<string | null>(null);
+  const [text, setText] = useState<string | undefined>();
   const [mode, setMode] = useState<Mode>("split");
   const getColor = (buttonMode: Mode) =>
     buttonMode === mode ? "bg-zinc-700" : "";
@@ -121,6 +121,11 @@ function Editor() {
       window.removeEventListener("resize", h);
     };
   }, []);
+  useEffect(() => {
+    if (docQuery.data?.content) {
+      setText((t) => (!t ? docQuery.data.content : t));
+    }
+  }, [docQuery.data?.content]);
   if (docQuery.isLoading) {
     return <>Loading</>;
   }
@@ -163,7 +168,7 @@ function Editor() {
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
-        {mode !== "view" && clerk.loaded && (
+        {mode !== "view" && clerk.loaded && text && (
           <div className="flex-1 min-w-0 min-h-full">
             <Monaco defaultText={docQuery.data.content} setText={setText} />
           </div>

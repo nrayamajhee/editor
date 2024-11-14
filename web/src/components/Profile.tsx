@@ -43,7 +43,7 @@ export default function Profile({ variant }: ProfileProps) {
               gap: "10px",
               padding: "12px",
             }}
-            className="flex flex-col items-stretch bg-zinc-700 rounded-md p-2 gap-2 min-w-32"
+            className="flex flex-col items-stretch bg-zinc-700 shadow-md rounded-md p-2 gap-2 min-w-32"
           >
             <p className="px-2 py-1">{user?.firstName}</p>
             <SignOutButton

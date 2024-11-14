@@ -28,7 +28,7 @@ export type QueryErr = {
 export const useQuery = <T extends unknown>(
   key: string | string[],
   path: string,
-  enabled: boolean,
+  enabled?: boolean,
 ) => {
   const { getToken } = useAuth();
   return useReactQuery({
