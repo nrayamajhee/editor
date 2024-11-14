@@ -2,21 +2,19 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./main.css";
 import "./markdown.css";
-import Editor from "./Editor";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { IconContext } from "react-icons";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Dashboard from "./Dashboard";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   useQuery as useReactQuery,
   useMutation as useReactMutation,
 } from "@tanstack/react-query";
-import Login from "./Login";
-import NotFound from "./NotFound";
-import Pictures from "./Pictures";
 import Wrapper from "./components/Wrapper";
+import { resolveValue, Toaster } from "react-hot-toast";
+import { FiXOctagon } from "react-icons/fi";
+import Spinner from "./components/Spinner";
 
 const queryClient = new QueryClient();
 
@@ -40,21 +38,25 @@ export const useQuery = <T extends unknown>(
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
-      if (!res.ok) {
-        throw {
-          status: res.status,
-          error: res.body,
-        };
-      } else {
-        let json = await res.json();
-        return json as T;
-      }
+      return await parseResponse<T>(res);
     },
     retry: false,
     refetchOnWindowFocus: false,
     enabled: enabled ?? true,
   });
 };
+
+async function parseResponse<T>(res: Response) {
+  if (!res.ok) {
+    throw {
+      status: res.status,
+      error: await res.text(),
+    };
+  } else {
+    let json = await res.json();
+    return json as T;
+  }
+}
 
 export const useMutation = <T extends unknown>(
   key: string | string[],
@@ -79,7 +81,7 @@ export const useMutation = <T extends unknown>(
   });
 };
 
-export const useDelete = (key: string | string[], path: string) => {
+export function useDelete<T>(key: string | string[], path: string) {
   const { getToken } = useAuth();
   return useReactMutation({
     mutationKey: typeof key === "string" ? [key] : key,
@@ -92,13 +94,12 @@ export const useDelete = (key: string | string[], path: string) => {
           Authorization: token ?? "",
         },
       });
-      let json = await res.json();
-      return json;
+      return await parseResponse<T>(res);
     },
   });
-};
+}
 
-export const useFile = (key: string | string[], path: string) => {
+export function useFile<T>(key: string | string[], path: string) {
   const { getToken } = useAuth();
   return useReactMutation({
     mutationKey: typeof key === "string" ? [key] : key,
@@ -113,11 +114,10 @@ export const useFile = (key: string | string[], path: string) => {
         },
         body,
       });
-      let json = await res.json();
-      return json;
+      return await parseResponse<T>(res);
     },
   });
-};
+}
 
 const router = createBrowserRouter(
   [
@@ -127,25 +127,25 @@ const router = createBrowserRouter(
       children: [
         {
           index: true,
-          element: <Dashboard />,
+          lazy: () => import("./pages/Dashboard"),
         },
         {
           path: "pictures",
-          element: <Pictures />,
+          lazy: () => import("./pages/Pictures"),
         },
       ],
     },
     {
       path: "/login",
-      element: <Login />,
+      lazy: () => import("./pages/Login"),
     },
     {
       path: "/document/:id",
-      element: <Editor />,
+      lazy: () => import("./pages/Editor"),
     },
     {
       path: "*",
-      element: <NotFound />,
+      lazy: () => import("./pages/NotFound"),
     },
   ],
   {
@@ -160,13 +160,24 @@ if (!PUBLISHABLE_KEY) {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <QueryClientProvider client={queryClient}>
         <IconContext.Provider value={{ className: "text-zinc-100 text-xl" }}>
           <RouterProvider router={router}></RouterProvider>
           <ReactQueryDevtools initialIsOpen={false} />
+          <Toaster>
+            {(t) => (
+              <div className="bg-zinc-800 text-zinc-50 p-4 rounded-md shadow-md flex gap-4 items-center max-w-96">
+                {t.type === "error" && (
+                  <FiXOctagon color="#d32" className="shrink-0" />
+                )}
+                {t.type === "loading" && <Spinner />}
+                {resolveValue(t.message, t)}
+              </div>
+            )}
+          </Toaster>
         </IconContext.Provider>
-      </ClerkProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   </StrictMode>,
 );

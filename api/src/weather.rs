@@ -68,14 +68,6 @@ pub struct Weather {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(TS)]
-#[ts(export)]
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct NewWeather {
-    pub lat: f64,
-    pub lon: f64,
-}
-
 pub async fn get(
     State(app): State<AppState>,
     Query(query): Query<WeatherQuery>,
@@ -152,7 +144,8 @@ pub async fn get(
         .fetch_one(&app.db)
         .await?;
         if query.unit == TemperatureUnit::F {
-            weather.temperature_2m = weather.temperature_2m * (9. / 5.) + 32.;
+            let f = weather.temperature_2m * (9. / 5.) + 32.;
+            weather.temperature_2m = (f * 100.).round() / 100.
         }
         Ok(Json(weather))
     }

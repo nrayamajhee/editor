@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "insert into picture (name) values ($1) returning *",
+  "query": "select * from picture",
   "describe": {
     "columns": [
       {
@@ -20,9 +20,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Text"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -30,5 +28,5 @@
       false
     ]
   },
-  "hash": "b305a2e99f85289dde43becccdc6c61bfbc4c16cd99bbb8035504a60b21a7cb2"
+  "hash": "9f2cd85ef7a75c278b27b6319b20a454f1ce05a95093f02b32afa1cb4f45651b"
 }

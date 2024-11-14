@@ -2,7 +2,7 @@ import { SignIn, useUser } from "@clerk/clerk-react";
 import { Navigate } from "react-router-dom";
 import { dark } from "@clerk/themes";
 
-export default function Login() {
+export function Component() {
   const { user } = useUser();
   if (user) {
     return <Navigate to="/" />;

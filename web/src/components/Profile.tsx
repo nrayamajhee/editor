@@ -23,7 +23,7 @@ export default function Profile({ variant }: ProfileProps) {
       </SignedOut>
       <SignedIn>
         <Popover className="relative">
-          <PopoverButton className="outline-none border-2 border-transparent active:border-zinc-800 flex items-center">
+          <PopoverButton className="outline-none border-2 border-transparent focus:border-zinc-800 active:border-zinc-800 flex items-center rounded-full">
             {user?.hasImage ? (
               <img
                 alt="profile-picture"
@@ -49,9 +49,9 @@ export default function Profile({ variant }: ProfileProps) {
             <SignOutButton
               redirectUrl={import.meta.env.PROD ? "/editor" : undefined}
             >
-              <p className="px-2 py-1 rounded-md hover:bg-zinc-800 cursor-pointer">
+              <button className="px-2 py-1 rounded-md hover:bg-zinc-800 cursor-pointer">
                 Sign out
-              </p>
+              </button>
             </SignOutButton>
           </PopoverPanel>
         </Popover>

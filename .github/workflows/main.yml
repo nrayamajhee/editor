@@ -81,7 +81,7 @@ jobs:
       - name: Setup rust
         run: rustup update stable && rustup default stable
       - name: Build
-        run: cargo check --verbose
+        run: RUSTFLAGS="-D warnings" cargo check --verbose
   deploy-frontent:
     environment:
       name: github-pages

@@ -1,6 +1,6 @@
 import { FiXOctagon } from "react-icons/fi";
 
-export default function NotFound() {
+export function Component() {
   return (
     <div className="grid place-items-center min-h-screen">
       <div className="flex flex-col items-center gap-8">

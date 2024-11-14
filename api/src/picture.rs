@@ -1,55 +1,72 @@
 use std::fs::File;
 use std::io::prelude::*;
 
+use axum::extract::Path;
 use axum::{
     extract::{Multipart, State},
     Json,
 };
 use chrono::{DateTime, Utc};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::query_as;
 use ts_rs::TS;
-use uuid::Uuid;
 
-use crate::{
-    error::{JsonRes, Res},
-    AppState,
-};
+use crate::{error::JsonRes, AppState};
 
-pub async fn upload(State(_): State<AppState>, mut multipart: Multipart) -> Res<()> {
+#[derive(TS)]
+#[ts(export)]
+#[derive(Deserialize, Serialize)]
+pub struct Picture {
+    pub name: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+pub async fn upload(State(app): State<AppState>, mut multipart: Multipart) -> JsonRes<Picture> {
     let file = multipart.next_field().await?.unwrap();
     let name = file.file_name().unwrap().to_owned();
-    let path = format!("/assets/{}", name);
-    let bytes = file.bytes().await?;
-    let mut file = File::create(path.clone())?;
-    file.write(&bytes[..])?;
-    Ok(())
+    let content_type = file.content_type().unwrap();
+    if content_type.contains("image") {
+        let path = format!("/assets/{}", name);
+        let bytes = file.bytes().await?;
+        let mut file = File::create(path.clone())?;
+        file.write(&bytes[..])?;
+        let picture = query_as!(
+            Picture,
+            "insert into picture (name) values ($1) returning *",
+            name,
+        )
+        .fetch_one(&app.db)
+        .await?;
+        Ok(Json(picture))
+    } else {
+        Err(anyhow::Error::msg("Only image format is supported").into())
+    }
 }
 
-#[derive(TS)]
-#[ts(export)]
-#[derive(Deserialize)]
-pub struct NewPicture {
-    name: String,
+pub async fn get_all(State(app): State<AppState>) -> JsonRes<Vec<Picture>> {
+    let pictures = query_as!(Picture, "select * from picture")
+        .fetch_all(&app.db)
+        .await?;
+    Ok(Json(pictures))
 }
 
-#[derive(TS)]
-#[ts(export)]
-#[derive(Deserialize)]
-pub struct Picture {
-    id: Uuid,
-    name: String,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-}
-
-pub async fn create(State(app): State<AppState>, Json(pic): Json<NewPicture>) -> JsonRes<Picture> {
-    let picture = query_as!(
+#[allow(dead_code)]
+pub async fn delete(Path(id): Path<String>, State(app): State<AppState>) -> JsonRes<Picture> {
+    let document = query_as!(
         Picture,
-        "insert into picture (name) values ($1) returning *",
-        pic.name
+        "delete from picture where name = $1 returning *",
+        id
     )
     .fetch_one(&app.db)
     .await?;
-    Ok(Json(picture))
+    Ok(Json(document))
+}
+
+#[allow(dead_code)]
+pub async fn get(Path(id): Path<String>, State(app): State<AppState>) -> JsonRes<Picture> {
+    let document = query_as!(Picture, "select * from picture where name = $1", id)
+        .fetch_one(&app.db)
+        .await?;
+    Ok(Json(document))
 }

@@ -51,7 +51,9 @@ export default function Weather() {
       <div className="row-span-3">
         <WeatherIcon code={weatherQuery.data.weather_code} size={48} />
       </div>
-      <p className="text-4xl">{weatherQuery.data.temperature_2m}°F</p>
+      <p className="text-4xl">
+        {weatherQuery.data.temperature_2m.toFixed(2)}°F
+      </p>
       <p className="text-xl">{weatherQuery.data.location}</p>
     </div>
   );

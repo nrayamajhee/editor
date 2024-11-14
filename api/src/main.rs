@@ -16,7 +16,7 @@ use axum::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
         HeaderValue, Method,
     },
-    routing::{get, post},
+    routing::get,
     Router,
 };
 use clerk_rs::validators::{axum::ClerkLayer, jwks::MemoryCacheJwksProvider};
@@ -26,12 +26,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::path::PathBuf;
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
 use tower_http::{cors::CorsLayer, services::ServeDir};
-use weather::Weather;
 
 #[derive(Clone)]
 struct AppState {
@@ -64,8 +59,8 @@ async fn main() -> Result<()> {
                 .post(document::update)
                 .delete(document::delete),
         )
-        .route("/upload", post(picture::upload))
         .route("/weather", get(weather::get))
+        .route("/pictures", get(picture::get_all).post(picture::upload))
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk),
             None,

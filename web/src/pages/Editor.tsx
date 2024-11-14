@@ -6,10 +6,10 @@ import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
 import { Link, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "./main";
+import { useMutation, useQuery } from "../main";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useQueryClient } from "@tanstack/react-query";
-import Profile from "./components/Profile";
+import Profile from "../components/Profile";
 
 type Mode = "edit" | "view" | "split";
 
@@ -96,7 +96,7 @@ function DocTitle({ defaulTitle }: DocTitleProps) {
   );
 }
 
-function Editor() {
+export function Component() {
   let { id } = useParams();
   const clerk = useClerk();
   const docQuery = useQuery<Document>(
@@ -122,8 +122,8 @@ function Editor() {
     };
   }, []);
   useEffect(() => {
-    if (docQuery.data?.content) {
-      setText((t) => (!t ? docQuery.data.content : t));
+    if (docQuery.data?.content !== undefined) {
+      setText((t) => (t === undefined ? docQuery.data?.content : t));
     }
   }, [docQuery.data?.content]);
   if (docQuery.isLoading) {
@@ -168,7 +168,7 @@ function Editor() {
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
-        {mode !== "view" && clerk.loaded && text && (
+        {mode !== "view" && clerk.loaded && text !== undefined && (
           <div className="flex-1 min-w-0 min-h-full">
             <Monaco defaultText={docQuery.data.content} setText={setText} />
           </div>
@@ -184,5 +184,3 @@ function Editor() {
     </div>
   );
 }
-
-export default Editor;

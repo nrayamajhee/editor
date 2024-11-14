@@ -4,7 +4,7 @@ import Weather from "./Weather";
 
 export default function Header() {
   const linkStyle =
-    "py-4 px-8 border-b-4 border-b-sky-400/20 hover:border-b-sky-400/50 transition-colors";
+    "py-4 px-8 border-b-4 border-b-sky-400/20 outline-none active:border-b-sky-400/50 focus:border-b-sky-400/50 hover:border-b-sky-400/50 transition-colors";
   return (
     <div>
       <div className="flex justify-between px-16">
