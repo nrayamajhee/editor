@@ -8,6 +8,7 @@ import {
   WiDaySunnyOvercast,
 } from "react-icons/wi";
 import { Weather as W } from "schema";
+import toast from "react-hot-toast";
 
 type Coords = {
   latitude: number;
@@ -27,15 +28,20 @@ export default function Weather() {
       }
     }
     if (askLocation) {
-      navigator.geolocation.getCurrentPosition((location) => {
-        const loc = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          time: new Date().toUTCString(),
-        };
-        setLoc(loc);
-        window.localStorage.setItem("location", JSON.stringify(loc));
-      });
+      navigator.geolocation.getCurrentPosition(
+        (location) => {
+          const loc = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            time: new Date().toUTCString(),
+          };
+          setLoc(loc);
+          window.localStorage.setItem("location", JSON.stringify(loc));
+        },
+        (err) => {
+          toast.error(err.message);
+        },
+      );
     }
   }, []);
   const weatherQuery = useQuery<W>(

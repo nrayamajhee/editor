@@ -52,7 +52,7 @@ export function Component() {
           <img
             key={pic.name}
             className="aspect-square object-cover min-h-full"
-            src={`${import.meta.env.VITE_API_URL}/assets/${pic.name}`}
+            src={`${import.meta.env.VITE_R2_URL}/${pic.name}`}
           />
         ))}
       </div>

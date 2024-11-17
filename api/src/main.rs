@@ -11,6 +11,7 @@ mod picture;
 mod weather;
 
 use anyhow::Result;
+use aws_config::{BehaviorVersion, Region};
 use axum::{
     http::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
@@ -32,6 +33,7 @@ use tower_http::{cors::CorsLayer, services::ServeDir};
 struct AppState {
     db: PgPool,
     reqwest: Client,
+    s3: aws_sdk_s3::Client,
 }
 
 #[derive(Deserialize)]
@@ -51,6 +53,22 @@ async fn main() -> Result<()> {
     let config = ClerkConfiguration::new(None, None, Some(env_var!("CLERK_SECRET")), None);
     let clerk = Clerk::new(config);
     let reqwest = Client::new();
+    let config = aws_config::load_defaults(BehaviorVersion::latest())
+        .await
+        .into_builder()
+        .endpoint_url(env_var!("S3_URL"))
+        .region(Region::new("auto"))
+        .credentials_provider(aws_sdk_s3::config::SharedCredentialsProvider::new(
+            aws_sdk_s3::config::Credentials::new(
+                env_var!("R2_ACCESS_KEY_ID"),
+                env_var!("R2_ACCESS_KEY_SECRET"),
+                None,
+                None,
+                "r2",
+            ),
+        ))
+        .build();
+    let s3 = aws_sdk_s3::Client::new(&config);
     let app = Router::new()
         .route("/documents", get(document::get_all).post(document::create))
         .route(
@@ -74,7 +92,7 @@ async fn main() -> Result<()> {
                 .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
                 .allow_methods([Method::GET, Method::POST, Method::DELETE]),
         )
-        .with_state(AppState { db, reqwest });
+        .with_state(AppState { db, reqwest, s3 });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
     axum::serve(listener, app).await?;
     Ok(())

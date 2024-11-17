@@ -15,6 +15,7 @@ RUN cargo build --release --bin api
 
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
+RUN apt-get update && apt-get install ca-certificates -y && update-ca-certificates
 WORKDIR /app
 COPY --from=builder /app/target/release/api /usr/local/bin
 ENTRYPOINT ["/usr/local/bin/api"]

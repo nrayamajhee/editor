@@ -1,6 +1,3 @@
-use std::fs::File;
-use std::io::prelude::*;
-
 use axum::extract::Path;
 use axum::{
     extract::{Multipart, State},
@@ -27,10 +24,15 @@ pub async fn upload(State(app): State<AppState>, mut multipart: Multipart) -> Js
     let name = file.file_name().unwrap().to_owned();
     let content_type = file.content_type().unwrap();
     if content_type.contains("image") {
-        let path = format!("/assets/{}", name);
-        let bytes = file.bytes().await?;
-        let mut file = File::create(path.clone())?;
-        file.write(&bytes[..])?;
+        let body = aws_sdk_s3::primitives::ByteStream::from(file.bytes().await?);
+        app.s3
+            .put_object()
+            .bucket("editor")
+            .key(name.clone())
+            .acl(aws_sdk_s3::types::ObjectCannedAcl::PublicRead)
+            .body(body)
+            .send()
+            .await?;
         let picture = query_as!(
             Picture,
             "insert into picture (name) values ($1) returning *",

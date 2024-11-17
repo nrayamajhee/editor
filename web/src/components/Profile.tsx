@@ -49,7 +49,7 @@ export default function Profile({ variant }: ProfileProps) {
             <SignOutButton
               redirectUrl={import.meta.env.PROD ? "/editor" : undefined}
             >
-              <button className="px-2 py-1 rounded-md hover:bg-zinc-800 cursor-pointer">
+              <button className="px-2 py-1 rounded-md hover:bg-zinc-800 cursor-pointer text-left">
                 Sign out
               </button>
             </SignOutButton>

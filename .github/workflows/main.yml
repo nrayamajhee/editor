@@ -59,6 +59,7 @@ jobs:
         env:
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_R2_URL: ${{ secrets.VITE_R2_URL }}
         run: |
           npm run check &&
           npm run build &&
