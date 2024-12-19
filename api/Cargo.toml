@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [package.metadata.scripts]
-env = "infisical export --path=/editor_web > .env"
+env = "infisical export --path=/editor_api > .env-next"
 
 [dependencies]
 anyhow = "1.0.92"
