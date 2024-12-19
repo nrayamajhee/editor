@@ -8,7 +8,8 @@
     "check": "tsc -b",
     "build": "vite build --base=/editor",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "env": "infisical export --path=/editor_web > .env"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.14.0",

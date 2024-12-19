@@ -1,6 +1,6 @@
 macro_rules! env_var {
     ($l: expr) => {{
-        let val = std::env::var(String::from($l)).expect(&$l);
+        let val = std::env::var(String::from($l)).expect($l);
         val
     }};
 }
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
     let db = PgPoolOptions::new()
         .max_connections(5)
-        .connect(&std::env::var("DATABASE_URL")?)
+        .connect(&env_var!("DATABASE_URL"))
         .await?;
     let config = ClerkConfiguration::new(None, None, Some(env_var!("CLERK_SECRET")), None);
     let clerk = Clerk::new(config);

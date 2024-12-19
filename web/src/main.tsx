@@ -15,6 +15,7 @@ import Wrapper from "./components/Wrapper";
 import { resolveValue, Toaster } from "react-hot-toast";
 import { FiXOctagon } from "react-icons/fi";
 import Spinner from "./components/Spinner";
+import { env } from "./env";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,7 @@ export const useQuery = <T extends unknown>(
     queryKey: typeof key === "string" ? [key] : key,
     queryFn: async () => {
       let token = await getToken();
-      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+      let res = await fetch(`${env.VITE_API_URL}${path}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
@@ -67,7 +68,7 @@ export const useMutation = <T extends unknown>(
     mutationKey: typeof key === "string" ? [key] : key,
     mutationFn: async (body: T) => {
       let token = await getToken();
-      let res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+      let res = await fetch(`${env.VITE_API_URL}${path}`, {
         method: "post",
         headers: {
           "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import { Picture } from "schema";
 import { BiSolidCloudUpload } from "react-icons/bi";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { env } from "../env";
 
 export function Component() {
   const picQuery = useQuery<Picture[]>("pictures", "/pictures");
@@ -52,7 +53,7 @@ export function Component() {
           <img
             key={pic.name}
             className="aspect-square object-cover min-h-full"
-            src={`${import.meta.env.VITE_R2_URL}/${pic.name}`}
+            src={`${env.VITE_R2_URL}/${pic.name}`}
           />
         ))}
       </div>
