@@ -3,7 +3,7 @@ import { User } from "@clerk/remix/ssr.server";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiUser } from "react-icons/fi";
 
-type ProfileProps = {
+export type ProfileProps = {
   user: User;
   variant?: "big" | "small";
 };

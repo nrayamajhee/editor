@@ -28,6 +28,7 @@ use serde::Deserialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::path::PathBuf;
 use tower_http::{cors::CorsLayer, services::ServeDir};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[derive(Clone)]
 struct AppState {
@@ -45,7 +46,18 @@ pub struct F {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                format!(
+                    "{}=debug,tower_http=debug,axum::rejection=trace",
+                    env!("CARGO_CRATE_NAME")
+                )
+                .into()
+            }),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
     let db = PgPoolOptions::new()
         .max_connections(5)
         .connect(&env_var!("DATABASE_URL"))

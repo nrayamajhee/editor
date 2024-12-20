@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [package.metadata.scripts]
-env = "infisical export --path=/editor_api > .env-next"
+env = "infisical export --path=/editor_api > .env"
 
 [dependencies]
 anyhow = "1.0.92"
 aws-config = "1.5.10"
 aws-sdk-s3 = "1.61.0"
-axum = { version = "0.7.7", features = ["macros", "multipart"] }
+axum = { version = "0.7.7", features = ["macros", "multipart", "tracing"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 clerk-rs = { version = "0.4.0", features = ["axum"] }
 dotenv = "0.15.0"

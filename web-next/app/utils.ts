@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { env } from "./env";
+import { useAuth } from "@clerk/remix";
 
-export const formatDate = (date: string | Date) => {
+export function formatDate(date: string | Date) {
   let d = typeof date === "string" ? new Date(date) : date;
   return Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -9,12 +11,13 @@ export const formatDate = (date: string | Date) => {
     hour: "numeric",
     minute: "numeric",
   }).format(d);
-};
+}
 
-export const formatTime = (date: string | Date) => {
+export function formatTime(date: string | Date) {
   let d = typeof date === "string" ? new Date(date) : date;
   return Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "numeric",
   }).format(d);
-};
+}
+
