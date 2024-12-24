@@ -1,7 +1,3 @@
-import { useEffect, useState } from "react";
-import { env } from "./env";
-import { useAuth } from "@clerk/remix";
-
 export function formatDate(date: string | Date) {
   let d = typeof date === "string" ? new Date(date) : date;
   return Intl.DateTimeFormat("en-US", {

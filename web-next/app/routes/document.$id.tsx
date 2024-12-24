@@ -1,22 +1,17 @@
 import MonacoEditor, { Monaco as M } from "@monaco-editor/react";
-import { Document } from "schema";
+import { type Document } from "schema";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { useClerk } from "@clerk/clerk-react";
-import {
-  Link,
-  LoaderFunction,
-  redirect,
-  useLoaderData,
-  useParams,
-} from "react-router-dom";
+import { useAuth } from "@clerk/remix";
+import { Link, redirect, useLoaderData, useParams } from "@remix-run/react";
 import { useDebounce } from "@uidotdev/usehooks";
 import Profile from "../components/Profile";
 import { getAuth } from "@clerk/remix/ssr.server";
+import { get, post } from "~/utils/query";
 import { createClerkClient } from "@clerk/remix/api.server";
-import { get } from "~/query";
+import { LoaderFunctionArgsWithAuth } from "node_modules/@clerk/remix/dist/ssr/types";
 
 type Mode = "edit" | "view" | "split";
 
@@ -27,29 +22,26 @@ type MonacoProps = {
 
 function Monaco({ defaultText, setText }: MonacoProps) {
   let { id } = useParams();
-  // const qc = useQueryClient();
-  // const updateDoc = useMutation("update_document", `/document/${id}`);
+  const { getToken } = useAuth();
   const [text, setTextInternal] = useState(defaultText);
   const handleUpdate = (value?: string) => {
     if (value) {
       setTextInternal(value);
     }
   };
-  const debouncedText = useDebounce(text, 300);
+  const debouncedText = useDebounce(text, 200);
   useLayoutEffect(() => {
-    if (debouncedText) {
-      setText(debouncedText);
-      // updateDoc.mutate(
-      //   {
-      //     content: debouncedText,
-      //   },
-      //   {
-      //     onSuccess: () => {
-      //       qc.invalidateQueries({ queryKey: ["document", id] });
-      //     },
-      //   },
-      // );
-    }
+    (async () => {
+      if (debouncedText) {
+        setText(debouncedText);
+        const token = await getToken();
+        if (token) {
+          post(`/document/${id}`, token, {
+            content: debouncedText,
+          });
+        }
+      }
+    })();
   }, [debouncedText]);
   function handleOnMount(_editor: any, monaco: M) {
     monaco.editor.addKeybindingRule({
@@ -84,15 +76,22 @@ type DocTitleProps = {
 function DocTitle({ defaulTitle }: DocTitleProps) {
   const [title, setTitle] = useState(defaulTitle);
   let { id } = useParams();
-  // const updateTitle = useMutation("update_title", `/document/${id}`);
+  const { getToken } = useAuth();
   const debouncedTitle = useDebounce(title, 300);
   const onTitleInput = (e: any) => {
     setTitle(e.target.value);
   };
   useEffect(() => {
-    // updateTitle.mutate({
-    //   title: title,
-    // });
+    (async () => {
+      if (defaulTitle !== debouncedTitle) {
+        const token = await getToken();
+        if (token) {
+          await post(`/document/${id}`, token, {
+            title: debouncedTitle,
+          });
+        }
+      }
+    })();
   }, [debouncedTitle]);
   return (
     <input
@@ -103,7 +102,7 @@ function DocTitle({ defaulTitle }: DocTitleProps) {
   );
 }
 
-export async function loader(args) {
+export async function loader(args: LoaderFunctionArgsWithAuth) {
   const { userId, getToken } = await getAuth(args);
   const token = await getToken();
   if (!(token && userId)) {
@@ -120,11 +119,7 @@ export async function loader(args) {
 
 export default function Document() {
   const { document, user } = useLoaderData<typeof loader>();
-  // const document = useQuery<Document>(
-  //   ["document", id ?? ""],
-  //   `/document/${id}`,
-  // );
-  const [text, setText] = useState<string | undefined>();
+  const [text, setText] = useState<string | undefined>(document.content);
   const [mode, setMode] = useState<Mode>("split");
   const getColor = (buttonMode: Mode) =>
     buttonMode === mode ? "bg-zinc-700" : "";
@@ -142,11 +137,6 @@ export default function Document() {
       window.removeEventListener("resize", h);
     };
   }, []);
-  // useEffect(() => {
-  //   if (docQuery.data?.content !== undefined) {
-  //     setText((t) => (t === undefined ? docQuery.data?.content : t));
-  //   }
-  // }, [docQuery.data?.content]);
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="grid grid-cols-3 bg-zinc-800 p-4">

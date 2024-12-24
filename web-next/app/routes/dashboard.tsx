@@ -3,10 +3,11 @@ import { getAuth } from "@clerk/remix/ssr.server";
 import { LoaderFunction } from "@remix-run/node";
 import { Document as Doc } from "schema";
 import Document from "~/components/Document";
-import { redirect, useLoaderData } from "@remix-run/react";
-import { get } from "~/query";
+import { redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { get, post } from "~/utils/query";
 import { FiFile } from "react-icons/fi";
 import Header from "~/components/Header";
+import { useAuth } from "@clerk/remix";
 
 export const docStyle =
   "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
@@ -28,15 +29,18 @@ export const loader: LoaderFunction = async (args) => {
 
 export default function Dashboard() {
   const { user, documents } = useLoaderData<typeof loader>();
-  // const docQuery = useQuery<Doc[]>("documents", "/documents");
-  // const navigate = useNavigate();
-  // const createDoc = useMutation("create_document", "/documents");
+  const navigate = useNavigate();
+  const { getToken } = useAuth();
+
   const handleNew = async () => {
-    //   let doc = await createDoc.mutateAsync({
-    //     title: "Untitled",
-    //     content: "",
-    //   });
-    //   navigate(`/document/${doc.id}`);
+    const token = await getToken();
+    if (token) {
+      let doc = (await post<Partial<Doc>>("/documents", token, {
+        title: "Untitled",
+        content: "",
+      })) as Doc;
+      navigate(`/document/${doc.id}`);
+    }
   };
   return (
     <div className="mx-auto max-w-[960px] py-8 px-4 flex flex-col min-h-screen">

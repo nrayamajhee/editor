@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { formatTime } from "../utils";
+import { formatTime } from "~/utils/formatter";
 import {
   WiDayCloudy,
   WiDaySnow,
@@ -8,7 +8,7 @@ import {
 } from "react-icons/wi";
 import { Weather as W } from "schema";
 import toast from "react-hot-toast";
-import { useGet } from "~/query";
+import { useGet } from "~/utils/query";
 
 type Coords = {
   latitude: number;
