@@ -1,8 +1,8 @@
 import { formatDate } from "~/utils/formatter";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiMoreVertical, FiTrash } from "react-icons/fi";
-import { Link } from "react-router-dom";
 import { Document as Doc } from "schema";
+import { Form, Link, useNavigation } from "@remix-run/react";
 import Spinner from "./ui/Spinner";
 
 export const docStyle =
@@ -13,11 +13,7 @@ type DocumentProp = {
 };
 
 export default function Document({ document }: DocumentProp) {
-  // const delDoc useDelete("delete_document", `/document/${document.id}`);
-  const deleteDoc = async () => {
-    // await delDoc.mutateAsync();
-    // qc.invalidateQueries({ queryKey: ["documents"] });
-  };
+  const navigation = useNavigation();
   return (
     <Link to={`/document/${document.id}`} className={docStyle}>
       <div className="p-6 flex flex-cols items-end">
@@ -37,19 +33,20 @@ export default function Document({ document }: DocumentProp) {
             }}
             className="flex flex-col items-stretch bg-zinc-700 rounded-md p-2 gap-2 min-w-32 shadow-md"
           >
-            <button
-              className="flex gap-2 items-center"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                deleteDoc();
-              }}
-            >
-              {/*
-              {delDoc.isPending ? <Spinner /> : <FiTrash />}
-            */}
-              Delete document
-            </button>
+            <Form action={`/document/${document.id}`} method="DELETE">
+              <button
+                className="flex gap-2 items-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                {navigation.state === "loading" ? (
+                  <Spinner />
+                ) : (
+                  <>Delete document</>
+                )}
+              </button>
+            </Form>
           </PopoverPanel>
         </Popover>
       </div>

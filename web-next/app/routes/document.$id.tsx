@@ -4,14 +4,14 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { useAuth } from "@clerk/remix";
 import { Link, redirect, useLoaderData, useParams } from "@remix-run/react";
 import { useDebounce } from "@uidotdev/usehooks";
 import Profile from "../components/Profile";
-import { getAuth } from "@clerk/remix/ssr.server";
-import { get, post } from "~/utils/query";
+import { del, get, post } from "~/utils/query";
 import { createClerkClient } from "@clerk/remix/api.server";
-import { LoaderFunctionArgsWithAuth } from "node_modules/@clerk/remix/dist/ssr/types";
+import { getAuth } from "@clerk/remix/ssr.server";
+import { useAuth } from "@clerk/remix";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 type Mode = "edit" | "view" | "split";
 
@@ -102,7 +102,7 @@ function DocTitle({ defaulTitle }: DocTitleProps) {
   );
 }
 
-export async function loader(args: LoaderFunctionArgsWithAuth) {
+export async function loader(args: LoaderFunctionArgs) {
   const { userId, getToken } = await getAuth(args);
   const token = await getToken();
   if (!(token && userId)) {
@@ -115,6 +115,15 @@ export async function loader(args: LoaderFunctionArgsWithAuth) {
   const document = await get(`/document/${args.params.id}`, token);
 
   return { user, document };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { getToken } = await getAuth(args);
+  const token = await getToken();
+  if (args.request.method === "DELETE" && token) {
+    await del(`/document/${args.params.id}`, token);
+    return redirect("/dashboard");
+  }
 }
 
 export default function Document() {
@@ -141,7 +150,7 @@ export default function Document() {
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="grid grid-cols-3 bg-zinc-800 p-4">
         <div className="flex gap-4 items-center">
-          <Link to="/">
+          <Link to="/dashboard">
             <FiArrowLeft />
           </Link>
           <DocTitle defaulTitle={document.title} />
