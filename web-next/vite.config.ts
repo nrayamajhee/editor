@@ -10,7 +10,7 @@ declare module "@remix-run/node" {
 
 export default defineConfig({
   server: {
-    port: 3030
+    port: 3030,
   },
   plugins: [
     remix({

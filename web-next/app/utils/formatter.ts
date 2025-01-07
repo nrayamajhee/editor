@@ -16,4 +16,3 @@ export function formatTime(date: string | Date) {
     minute: "numeric",
   }).format(d);
 }
-
