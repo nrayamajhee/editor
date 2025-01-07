@@ -1,6 +1,5 @@
 import { useAuth } from "@clerk/remix";
 import { useCallback, useEffect, useState } from "react";
-import { env } from "./env";
 
 type Method = "GET" | "POST" | "DELETE" | "PATCH" | "PUT";
 
@@ -10,7 +9,7 @@ async function fetchInternal<T>(
   method: Method,
   body?: T
 ) {
-  const res = await fetch(`${env.API_URL}${path}`, {
+  const res = await fetch(`${process.env.API_URL}${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",

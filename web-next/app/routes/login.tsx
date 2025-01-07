@@ -8,7 +8,6 @@ export default function Login() {
         appearance={{
           baseTheme: dark,
         }}
-        forceRedirectUrl={import.meta.env.PROD ? "/editor" : undefined}
       />
     </div>
   );

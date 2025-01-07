@@ -32,7 +32,7 @@ function Monaco({ defaultText, setText }: MonacoProps) {
   const debouncedText = useDebounce(text, 200);
   useLayoutEffect(() => {
     (async () => {
-      if (debouncedText) {
+      if (debouncedText != defaultText) {
         setText(debouncedText);
         const token = await getToken();
         if (token) {
@@ -97,7 +97,7 @@ function DocTitle({ defaulTitle }: DocTitleProps) {
     <input
       value={title}
       onChange={onTitleInput}
-      className="bg-transparent px-4 py-2 rounded-md border-2 border-transparent hover:border-zinc-700 focus:border-zinc-950 focus:outline-none focus:bg-zinc-900"
+      className="bg-transparent px-4 py-2 rounded-md border-2 border-transparent hover:border-zinc-700 focus:border-zinc-950 focus:outline-none focus:bg-zinc-900 w-full"
     />
   );
 }
@@ -148,8 +148,8 @@ export default function Document() {
   }, []);
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <header className="grid grid-cols-3 bg-zinc-800 p-4">
-        <div className="flex gap-4 items-center">
+      <header className="sm:grid sm:grid-cols-3 flex flex-cols gap-4 bg-zinc-800 p-4">
+        <div className="flex gap-4 items-center flex-1 md:flex-none">
           <Link to="/dashboard">
             <FiArrowLeft />
           </Link>

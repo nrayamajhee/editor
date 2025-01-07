@@ -32,12 +32,12 @@ jobs:
             backend:
               - 'api/**'
             frontend:
-              - 'web/**'
+              - 'web-next/**'
   frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web
+        working-directory: web-next
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
@@ -50,25 +50,15 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-          cache-dependency-path: "web/package-lock.json"
+          cache-dependency-path: "web-next/package-lock.json"
       - name: Install dependencies
         run: |
           npm install schema
           npm ci
       - name: Build
-        env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_R2_URL: ${{ secrets.VITE_R2_URL }}
         run: |
           npm run check &&
-          npm run build &&
-          cp ./dist/index.html ./dist/404.html
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "web/dist"
-
+          npm run build
   backend:
     runs-on: ubuntu-latest
     needs: changes
@@ -83,22 +73,18 @@ jobs:
         run: rustup update stable && rustup default stable
       - name: Build
         run: RUSTFLAGS="-D warnings" cargo check --verbose
-  deploy-frontent:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  deploy-frontend:
     needs: frontend
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web
-
+        working-directory: web-next
     steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v2
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_FRONTEND }}
   deploy-backend:
     needs: backend
     runs-on: ubuntu-latest
