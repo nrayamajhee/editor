@@ -13,6 +13,7 @@ mod weather;
 use anyhow::Result;
 use aws_config::{BehaviorVersion, Region};
 use axum::{
+    extract::{MatchedPath, Request},
     http::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
         HeaderValue, Method,
@@ -27,7 +28,8 @@ use reqwest::Client;
 use serde::Deserialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::path::PathBuf;
-use tower_http::{cors::CorsLayer, services::ServeDir};
+use tower_http::{cors::CorsLayer, services::ServeDir, trace::TraceLayer};
+use tracing::info_span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[derive(Clone)]
@@ -98,6 +100,21 @@ async fn main() -> Result<()> {
         ))
         .nest_service("/assets", ServeDir::new("/assets"))
         .route("/", get(root))
+        .layer(
+            TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
+                let matched_path = request
+                    .extensions()
+                    .get::<MatchedPath>()
+                    .map(MatchedPath::as_str);
+
+                info_span!(
+                    "http_request",
+                    method = ?request.method(),
+                    matched_path,
+                    some_other_field = tracing::field::Empty,
+                )
+            }),
+        )
         .layer(
             CorsLayer::new()
                 .allow_origin(env_var!("APP_URL").parse::<HeaderValue>()?)

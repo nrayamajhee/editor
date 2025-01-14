@@ -3,14 +3,14 @@ import { type Document } from "schema";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { Link, redirect, useLoaderData, useParams } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { Link, redirect, useLoaderData, useSubmit } from "@remix-run/react";
 import { useDebounce } from "@uidotdev/usehooks";
 import Profile from "../components/Profile";
 import { del, get, post } from "~/utils/query";
 import { createClerkClient } from "@clerk/remix/api.server";
 import { getAuth } from "@clerk/remix/ssr.server";
-import { useAuth } from "@clerk/remix";
+import { useAuth, useClerk } from "@clerk/remix";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 type Mode = "edit" | "view" | "split";
@@ -21,7 +21,7 @@ type MonacoProps = {
 };
 
 function Monaco({ defaultText, setText }: MonacoProps) {
-  let { id } = useParams();
+  const submit = useSubmit();
   const { getToken } = useAuth();
   const [text, setTextInternal] = useState(defaultText);
   const handleUpdate = (value?: string) => {
@@ -30,15 +30,18 @@ function Monaco({ defaultText, setText }: MonacoProps) {
     }
   };
   const debouncedText = useDebounce(text, 200);
-  useLayoutEffect(() => {
+  useEffect(() => {
     (async () => {
       if (debouncedText != defaultText) {
         setText(debouncedText);
         const token = await getToken();
         if (token) {
-          post(`/document/${id}`, token, {
-            content: debouncedText,
-          });
+          submit(
+            {
+              content: debouncedText,
+            },
+            { method: "POST", encType: "application/json" }
+          );
         }
       }
     })();
@@ -74,8 +77,8 @@ type DocTitleProps = {
 };
 
 function DocTitle({ defaulTitle }: DocTitleProps) {
+  const submit = useSubmit();
   const [title, setTitle] = useState(defaulTitle);
-  let { id } = useParams();
   const { getToken } = useAuth();
   const debouncedTitle = useDebounce(title, 300);
   const onTitleInput = (e: any) => {
@@ -86,9 +89,10 @@ function DocTitle({ defaulTitle }: DocTitleProps) {
       if (defaulTitle !== debouncedTitle) {
         const token = await getToken();
         if (token) {
-          await post(`/document/${id}`, token, {
-            title: debouncedTitle,
-          });
+          submit(
+            { title: debouncedTitle },
+            { method: "POST", encType: "application/json" }
+          );
         }
       }
     })();
@@ -124,11 +128,17 @@ export async function action(args: ActionFunctionArgs) {
     await del(`/document/${args.params.id}`, token);
     return redirect("/dashboard");
   }
+  if (args.request.method === "POST" && token) {
+    const body = await args.request.json();
+    console.log(body);
+    return await post(`/document/${args.params.id}`, token, body);
+  }
 }
 
 export default function Document() {
+  const clerk = useClerk();
   const { document, user } = useLoaderData<typeof loader>();
-  const [text, setText] = useState<string | undefined>(document.content);
+  const [text, setText] = useState<string | undefined>(document.content || "");
   const [mode, setMode] = useState<Mode>("split");
   const getColor = (buttonMode: Mode) =>
     buttonMode === mode ? "bg-zinc-700" : "";
@@ -153,7 +163,7 @@ export default function Document() {
           <Link to="/dashboard">
             <FiArrowLeft />
           </Link>
-          <DocTitle defaulTitle={document.title} />
+          <DocTitle defaulTitle={document?.title ?? ""} />
         </div>
         <div className="justify-self-center">
           <div className="flex gap-2 bg-zinc-900 p-1 rounded-md">
@@ -182,9 +192,9 @@ export default function Document() {
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
-        {mode !== "view" && text !== undefined && (
+        {mode !== "view" && text !== undefined && clerk.loaded && (
           <div className="flex-1 min-w-0 min-h-full">
-            <Monaco defaultText={document.content} setText={setText} />
+            <Monaco defaultText={text} setText={setText} />
           </div>
         )}
         {mode !== "edit" && (
