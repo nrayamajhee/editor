@@ -18,10 +18,10 @@ type Coords = {
 export default function Weather() {
   const [loc, setLoc] = useState<Coords | undefined>();
   useEffect(() => {
-    let location = localStorage.getItem("location");
+    const location = localStorage.getItem("location");
     let askLocation = true;
     if (location) {
-      let l = JSON.parse(location);
+      const l = JSON.parse(location);
       if (new Date().getTime() - new Date(l.time).getTime() < 60000) {
         setLoc(l);
         askLocation = false;

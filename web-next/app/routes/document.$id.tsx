@@ -1,9 +1,10 @@
 import MonacoEditor, { Monaco as M } from "@monaco-editor/react";
+import { editor } from "monaco-editor";
 import { type Document } from "schema";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Link, redirect, useLoaderData, useSubmit } from "@remix-run/react";
 import { useDebounce } from "@uidotdev/usehooks";
 import Profile from "../components/Profile";
@@ -12,6 +13,9 @@ import { createClerkClient } from "@clerk/remix/api.server";
 import { getAuth } from "@clerk/remix/ssr.server";
 import { useAuth, useClerk } from "@clerk/remix";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus as darkTheme } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import "../markdown.css";
 
 type Mode = "edit" | "view" | "split";
 
@@ -45,8 +49,8 @@ function Monaco({ defaultText, setText }: MonacoProps) {
         }
       }
     })();
-  }, [debouncedText]);
-  function handleOnMount(_editor: any, monaco: M) {
+  }, [debouncedText, setText, getToken, defaultText, submit]);
+  function handleOnMount(_editor: editor.IStandaloneCodeEditor, monaco: M) {
     monaco.editor.addKeybindingRule({
       keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF,
       command: null,
@@ -73,20 +77,20 @@ function Monaco({ defaultText, setText }: MonacoProps) {
 }
 
 type DocTitleProps = {
-  defaulTitle: string;
+  defaultTitle: string;
 };
 
-function DocTitle({ defaulTitle }: DocTitleProps) {
+function DocTitle({ defaultTitle }: DocTitleProps) {
   const submit = useSubmit();
-  const [title, setTitle] = useState(defaulTitle);
+  const [title, setTitle] = useState(defaultTitle);
   const { getToken } = useAuth();
   const debouncedTitle = useDebounce(title, 300);
-  const onTitleInput = (e: any) => {
-    setTitle(e.target.value);
+  const onTitleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target?.value);
   };
   useEffect(() => {
     (async () => {
-      if (defaulTitle !== debouncedTitle) {
+      if (defaultTitle !== debouncedTitle) {
         const token = await getToken();
         if (token) {
           submit(
@@ -96,7 +100,7 @@ function DocTitle({ defaulTitle }: DocTitleProps) {
         }
       }
     })();
-  }, [debouncedTitle]);
+  }, [debouncedTitle, getToken, defaultTitle, submit]);
   return (
     <input
       value={title}
@@ -143,7 +147,7 @@ export default function Document() {
   const getColor = (buttonMode: Mode) =>
     buttonMode === mode ? "bg-zinc-700" : "";
   useEffect(() => {
-    let h = () => {
+    const h = () => {
       if (window.innerWidth <= 768) {
         setMode("view");
       } else {
@@ -163,7 +167,7 @@ export default function Document() {
           <Link to="/dashboard">
             <FiArrowLeft />
           </Link>
-          <DocTitle defaulTitle={document?.title ?? ""} />
+          <DocTitle defaultTitle={document?.title ?? ""} />
         </div>
         <div className="justify-self-center">
           <div className="flex gap-2 bg-zinc-900 p-1 rounded-md">
@@ -200,7 +204,33 @@ export default function Document() {
         {mode !== "edit" && (
           <div className="flex-1 markdown overflow-y-auto">
             <div className="p-4">
-              <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code(props) {
+                    //eslint-disable-next-line
+                    const { children, className, ref, ...rest } = props;
+                    const match = /language-(\w+)/.exec(className || "");
+                    return match ? (
+                      <SyntaxHighlighter
+                        {...rest}
+                        PreTag="div"
+                        showLineNumbers={true}
+                        language={match[1]}
+                        style={darkTheme}
+                      >
+                        {String(children).replace(/\n$/, "")}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code {...rest} className={className}>
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {text}
+              </Markdown>
             </div>
           </div>
         )}

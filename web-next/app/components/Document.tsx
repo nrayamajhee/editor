@@ -1,6 +1,6 @@
 import { formatDate } from "~/utils/formatter";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import { FiMoreVertical, FiTrash } from "react-icons/fi";
+import { FiMoreVertical } from "react-icons/fi";
 import { Document as Doc } from "schema";
 import { Form, Link, useNavigation } from "@remix-run/react";
 import Spinner from "./ui/Spinner";

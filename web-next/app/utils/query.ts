@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/remix";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Method = "GET" | "POST" | "DELETE" | "PATCH" | "PUT";
 
@@ -35,7 +35,7 @@ export async function del(path: string, token: string) {
 type QueryState<T> =
   | {
       status: "error";
-      error: any;
+      error: unknown;
     }
   | {
       status: "fetched";
@@ -65,7 +65,7 @@ export function useGet<T>(url: string, enabled: boolean = true) {
               status: "fetched",
             });
           };
-          const onError = (err: any) => {
+          const onError = (err: unknown) => {
             setData({
               error: err,
               status: "error",
@@ -75,7 +75,7 @@ export function useGet<T>(url: string, enabled: boolean = true) {
         }
       })();
     }
-  }, [url, enabled]);
+  }, [url, enabled, getToken]);
   return data;
 }
 

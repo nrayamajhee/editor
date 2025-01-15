@@ -1,5 +1,5 @@
 export function formatDate(date: string | Date) {
-  let d = typeof date === "string" ? new Date(date) : date;
+  const d = typeof date === "string" ? new Date(date) : date;
   return Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -10,7 +10,7 @@ export function formatDate(date: string | Date) {
 }
 
 export function formatTime(date: string | Date) {
-  let d = typeof date === "string" ? new Date(date) : date;
+  const d = typeof date === "string" ? new Date(date) : date;
   return Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "numeric",

@@ -1,4 +1,4 @@
-import type { MetaFunction, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction, LinksFunction } from "@remix-run/node";
 import {
   Links,
   Meta,
@@ -6,7 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
 
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 
