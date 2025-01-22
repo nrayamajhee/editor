@@ -164,7 +164,7 @@ export default function Document() {
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="sm:grid sm:grid-cols-3 flex flex-cols gap-4 bg-zinc-800 p-4">
         <div className="flex gap-4 items-center flex-1 md:flex-none">
-          <Link to="/dashboard">
+          <Link to="/">
             <FiArrowLeft />
           </Link>
           <DocTitle defaultTitle={document?.title ?? ""} />

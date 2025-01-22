@@ -34,42 +34,48 @@ export default function Dashboard() {
   const isCreating = state !== "idle" && formMethod === "POST";
   return (
     <div className="mx-auto max-w-[960px] py-8 px-4 md:px-6 flex flex-col min-h-screen">
-      <Loader scaffold={<Spinner />} promise={user}>
-        {(user: User) => <Header user={user} />}
-      </Loader>
-      <Loader scaffold={<Spinner />} promise={documents}>
-        {(documents: Doc[]) => (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6 md:p-8 border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
-            {documents
-              .sort(
-                (a: Doc, b: Doc) =>
-                  new Date(a.updated_at).getTime() -
-                  new Date(b.updated_at).getTime()
-              )
-              .map((document: Doc) => (
-                <Document document={document} key={document.id} />
-              ))}
-            <Form action="/documents" method="POST">
-              <input type="hidden" name="title" value="Untitled" />
-              <button
-                className={
-                  docStyle +
-                  " w-full flex items-center justify-center gap-2 min-h-[5rem]"
-                }
-              >
-                {isCreating ? (
-                  <Spinner />
-                ) : (
-                  <>
-                    <FiFile />
-                    <p>New File</p>
-                  </>
-                )}
-              </button>
-            </Form>
-          </div>
-        )}
-      </Loader>
+      {state === "loading" ? (
+        <div>loading...</div>
+      ) : (
+        <>
+          <Loader scaffold={<Spinner />} promise={user}>
+            {(user: User) => <Header user={user} />}
+          </Loader>
+          <Loader scaffold={<Spinner />} promise={documents}>
+            {(documents: Doc[]) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6 md:p-8 border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
+                {documents
+                  .sort(
+                    (a: Doc, b: Doc) =>
+                      new Date(a.updated_at).getTime() -
+                      new Date(b.updated_at).getTime()
+                  )
+                  .map((document: Doc) => (
+                    <Document document={document} key={document.id} />
+                  ))}
+                <Form action="/documents" method="POST">
+                  <input type="hidden" name="title" value="Untitled" />
+                  <button
+                    className={
+                      docStyle +
+                      " w-full flex items-center justify-center gap-2 min-h-[5rem]"
+                    }
+                  >
+                    {isCreating ? (
+                      <Spinner />
+                    ) : (
+                      <>
+                        <FiFile />
+                        <p>New File</p>
+                      </>
+                    )}
+                  </button>
+                </Form>
+              </div>
+            )}
+          </Loader>
+        </>
+      )}
     </div>
   );
 }

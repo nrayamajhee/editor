@@ -16,7 +16,7 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async (args) => {
   const user = await getAuth(args);
   if (user.userId) {
-    return redirect("/dashboard");
+    return redirect("/documents");
   } else {
     return redirect("/login");
   }
