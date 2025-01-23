@@ -1,6 +1,12 @@
 import { useAuth } from "@clerk/remix";
 import { useEffect, useState } from "react";
 
+declare global {
+  interface Window {
+    API_URL: string;
+  }
+}
+
 type Method = "GET" | "POST" | "DELETE" | "PATCH" | "PUT";
 
 async function fetchInternal<T>(
@@ -9,7 +15,7 @@ async function fetchInternal<T>(
   method: Method,
   body?: T
 ) {
-  const res = await fetch(`${process.env.API_URL}${path}`, {
+  const res = await fetch(path, {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -21,15 +27,20 @@ async function fetchInternal<T>(
 }
 
 export async function get(path: string, token: string) {
-  return await fetchInternal(path, token, "GET");
+  return await fetchInternal(`${process.env.API_URL}${path}`, token, "GET");
 }
 
 export async function post<T>(path: string, token: string, body: T) {
-  return await fetchInternal(path, token, "POST", body);
+  return await fetchInternal(
+    `${process.env.API_URL}${path}`,
+    token,
+    "POST",
+    body
+  );
 }
 
 export async function del(path: string, token: string) {
-  return await fetchInternal(path, token, "DELETE");
+  return await fetchInternal(`${process.env.API_URL}${path}`, token, "DELETE");
 }
 
 type QueryState<T> =
@@ -44,6 +55,14 @@ type QueryState<T> =
   | {
       status: "idle" | "loading";
     };
+
+export function queryIsLoading<T>(query: QueryState<T>) {
+  return query.status === "idle" || query.status === "loading";
+}
+
+export function queryErrored<T>(query: QueryState<T>) {
+  return query.status !== "fetched";
+}
 
 export function useGet<T>(url: string, enabled: boolean = true) {
   const { getToken } = useAuth();
@@ -71,7 +90,9 @@ export function useGet<T>(url: string, enabled: boolean = true) {
               status: "error",
             });
           };
-          get(url, token).then(onSuccess).catch(onError);
+          fetchInternal(`${window["API_URL"]}${url}`, token, "GET")
+            .then(onSuccess)
+            .catch(onError);
         }
       })();
     }

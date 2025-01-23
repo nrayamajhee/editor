@@ -5,13 +5,18 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 
 import "./tailwind.css";
 
-export const loader: LoaderFunction = (args) => rootAuthLoader(args);
+export const loader: LoaderFunction = (args) => {
+  return rootAuthLoader(args, () => {
+    return { API_URL: process.env.API_URL };
+  });
+};
 
 import { ClerkApp } from "@clerk/remix";
 
@@ -29,6 +34,7 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { API_URL } = useLoaderData<typeof loader>();
   return (
     <html lang="en">
       <head>
@@ -39,6 +45,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.API_URL = "${API_URL}"`,
+          }}
+        />
         <ScrollRestoration />
         <Scripts />
       </body>

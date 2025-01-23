@@ -8,7 +8,7 @@ import {
 } from "react-icons/wi";
 import { Weather as W } from "schema";
 import toast from "react-hot-toast";
-import { useGet } from "~/utils/query";
+import { queryErrored, queryIsLoading, useGet } from "~/utils/query";
 
 type Coords = {
   latitude: number;
@@ -48,8 +48,8 @@ export default function Weather() {
     `/weather?lat=${loc?.latitude}&lon=${loc?.longitude}&unit=F`,
     !!loc
   );
-  if (weather.status === "loading") return <>loading</>;
-  if (weather.status !== "fetched") return <>Error</>;
+  if (queryIsLoading(weather)) return <>loading</>;
+  if (queryErrored(weather)) return <>error</>;
   return (
     <div className="grid grid-cols-[1fr_48px] gap-x-4 gap-y-2 items-center">
       <p className="text-xl">{formatTime(new Date())}</p>
