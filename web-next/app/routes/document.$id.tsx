@@ -130,11 +130,10 @@ export async function action(args: ActionFunctionArgs) {
   const token = await getToken();
   if (args.request.method === "DELETE" && token) {
     await del(`/document/${args.params.id}`, token);
-    return redirect("/dashboard");
+    return redirect("/documents");
   }
   if (args.request.method === "POST" && token) {
     const body = await args.request.json();
-    console.log(body);
     return await post(`/document/${args.params.id}`, token, body);
   }
 }

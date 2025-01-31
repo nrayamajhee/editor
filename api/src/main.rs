@@ -16,7 +16,7 @@ use axum::{
     extract::{MatchedPath, Request},
     http::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
-        HeaderValue, Method,
+        Method,
     },
     routing::get,
     Router,
@@ -101,6 +101,15 @@ async fn main() -> Result<()> {
         .nest_service("/assets", ServeDir::new("/assets"))
         .route("/", get(root))
         .layer(
+            CorsLayer::new()
+                .allow_origin([
+                    env_var!("APP_URL").parse()?,
+                    "https://editor.rayamajhee.com".parse()?,
+                ])
+                .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
+                .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::OPTIONS]),
+        )
+        .layer(
             TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
                 let matched_path = request
                     .extensions()
@@ -114,12 +123,6 @@ async fn main() -> Result<()> {
                     some_other_field = tracing::field::Empty,
                 )
             }),
-        )
-        .layer(
-            CorsLayer::new()
-                .allow_origin(env_var!("APP_URL").parse::<HeaderValue>()?)
-                .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
-                .allow_methods([Method::GET, Method::POST, Method::DELETE]),
         )
         .with_state(AppState { db, reqwest, s3 });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
