@@ -1,10 +1,11 @@
 use crate::{error::JsonRes, AppState};
 use axum::{
     extract::{Path, State},
-    Json,
+    Extension, Json,
 };
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use clerk_rs::validators::authorizer::ClerkJwt;
+use serde::{self, Deserialize, Serialize};
 use sqlx::{query, query_as};
 use ts_rs::TS;
 use uuid::Uuid;
@@ -14,6 +15,7 @@ use uuid::Uuid;
 #[derive(Serialize, Deserialize)]
 pub struct Document {
     id: Uuid,
+    author_id: Uuid,
     title: String,
     content: String,
     created_at: DateTime<Utc>,
@@ -73,15 +75,32 @@ pub async fn update(
     Ok(Json(document))
 }
 
+#[derive(Deserialize, Serialize)]
+struct User {
+    pub user_id: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+struct UserId {
+    pub id: Uuid,
+}
+
+#[axum::debug_handler]
 pub async fn create(
     State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
     Json(doc): Json<NewDocument>,
 ) -> JsonRes<Document> {
+    let user = query_as!(UserId, "select id from users where clerk_id = $1", jwt.sub)
+        .fetch_one(&app.db)
+        .await?;
+    tracing::debug!("USER {:?}", &user);
     let document = query_as!(
         Document,
-        "insert into document (title, content) values ($1, $2) returning *",
+        "insert into document (title, content, author_id) values ($1, $2, $3) returning *",
         doc.title,
         doc.content,
+        user.id
     )
     .fetch_one(&app.db)
     .await?;

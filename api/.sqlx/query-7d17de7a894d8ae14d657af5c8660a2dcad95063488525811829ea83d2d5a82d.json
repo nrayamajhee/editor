@@ -20,11 +20,16 @@
       },
       {
         "ordinal": 3,
+        "name": "author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -33,6 +38,7 @@
       "Left": []
     },
     "nullable": [
+      false,
       false,
       false,
       false,

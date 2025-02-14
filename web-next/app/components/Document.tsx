@@ -3,19 +3,20 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiMoreVertical } from "react-icons/fi";
 import { Document as Doc } from "schema";
 import { Form, Link, useNavigation } from "@remix-run/react";
-import Spinner from "./ui/Spinner";
+import Spinner from "./Spinner";
 
 export const docStyle =
   "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
 
 type DocumentProp = {
   document: Doc;
+  link: string;
 };
 
-export default function Document({ document }: DocumentProp) {
+export default function Document({ document, link }: DocumentProp) {
   const navigation = useNavigation();
   return (
-    <Link to={`/document/${document.id}`} className={docStyle}>
+    <Link to={link} className={docStyle}>
       <div className="p-6 flex flex-cols items-end">
         <div className="flex flex-col gap-2 flex-1">
           <p className="font-semibold text-xl">{document.title}</p>

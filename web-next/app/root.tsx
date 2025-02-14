@@ -1,16 +1,18 @@
 import type { LoaderFunction, LinksFunction } from "@remix-run/node";
 import {
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from "@remix-run/react";
 
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 
-import "./tailwind.css";
+import "./main.css";
 
 export const loader: LoaderFunction = (args) => {
   return rootAuthLoader(args, () => {
@@ -19,6 +21,7 @@ export const loader: LoaderFunction = (args) => {
 };
 
 import { ClerkApp } from "@clerk/remix";
+import { FiXOctagon } from "react-icons/fi";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,7 +37,12 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { API_URL } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
+  const err = useRouteError();
+  if (err) {
+    console.error(err);
+  }
+  const error = err as { status: number } | undefined;
   return (
     <html lang="en">
       <head>
@@ -48,21 +56,41 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.API_URL = "${API_URL}"`,
-          }}
-        />
-        <ScrollRestoration />
+        {error?.status === 404 ? (
+          <NotFound />
+        ) : (
+          <>
+            {children}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.API_URL = "${data?.API_URL}"`,
+              }}
+            />
+            <ScrollRestoration />
+          </>
+        )}
         <Scripts />
       </body>
     </html>
   );
 }
 
+function NotFound() {
+  return (
+    <div className="w-full h-screen grid place-items-center">
+      <div className="flex items-center flex-col gap-2">
+        <FiXOctagon className="w-16 h-16 text-red-500" />
+        <h1>404: Not Found</h1>
+        <p>The page you're looking for doesn't exist.</p>
+        <Link to="/" className="text-blue-200">
+          Find your way home.
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return <Outlet />;
 }
-
 export default ClerkApp(App);

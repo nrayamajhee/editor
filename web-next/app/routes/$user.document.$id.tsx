@@ -7,7 +7,7 @@ import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Link, redirect, useLoaderData, useSubmit } from "@remix-run/react";
 import { useDebounce } from "@uidotdev/usehooks";
-import Profile from "../components/Profile";
+import Profile from "~/components/Profile";
 import { del, get, post } from "~/utils/query";
 import { createClerkClient } from "@clerk/remix/api.server";
 import { getAuth } from "@clerk/remix/ssr.server";

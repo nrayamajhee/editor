@@ -1,14 +1,14 @@
 import { ActionFunctionArgs, LoaderFunction } from "@remix-run/node";
 import { type Document as Doc } from "schema";
 import { post, get } from "~/utils/query";
-import { createClerkClient } from "@clerk/remix/api.server";
 import { getAuth, User } from "@clerk/remix/ssr.server";
 import Document from "~/components/Document";
 import { Form, redirect, useLoaderData, useNavigation } from "@remix-run/react";
 import { FiFile } from "react-icons/fi";
-import Header from "~/components/Header";
-import Spinner from "~/components/ui/Spinner";
+import Spinner from "~/components/Spinner";
 import Loader from "~/components/Loader";
+import MainLayout from "~/components/MainLayout";
+import { createClerkClient } from "@clerk/remix/api.server";
 
 export const docStyle =
   "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
@@ -30,17 +30,14 @@ export const loader: LoaderFunction = async (args) => {
 
 export default function Dashboard() {
   const { state, formMethod } = useNavigation();
-  const { user, documents } = useLoaderData<typeof loader>();
+  const { documents, user } = useLoaderData<typeof loader>();
   const isCreating = state !== "idle" && formMethod === "POST";
   return (
-    <div className="mx-auto max-w-[960px] py-8 px-4 md:px-6 flex flex-col min-h-screen">
+    <div>
       {state === "loading" ? (
         <div>loading...</div>
       ) : (
-        <>
-          <Loader scaffold={<Spinner />} promise={user}>
-            {(user: User) => <Header user={user} />}
-          </Loader>
+        <MainLayout user={user}>
           <Loader scaffold={<Spinner />} promise={documents}>
             {(documents: Doc[]) => (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-6 md:p-8 border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
@@ -74,7 +71,7 @@ export default function Dashboard() {
               </div>
             )}
           </Loader>
-        </>
+        </MainLayout>
       )}
     </div>
   );
