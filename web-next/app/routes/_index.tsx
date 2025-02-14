@@ -4,7 +4,7 @@ import {
   type LoaderFunction,
   type MetaFunction,
 } from "@remix-run/node";
-import Spinner from "~/components/ui/Spinner";
+import Spinner from "~/components/Spinner";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,7 +16,7 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async (args) => {
   const user = await getAuth(args);
   if (user.userId) {
-    return redirect("/documents");
+    return redirect(`${user.userId}/documents`);
   } else {
     return redirect("/login");
   }

@@ -3,7 +3,7 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiMoreVertical } from "react-icons/fi";
 import { Document as Doc } from "schema";
 import { Form, Link, useNavigation } from "@remix-run/react";
-import Spinner from "./ui/Spinner";
+import Spinner from "./Spinner";
 
 export const docStyle =
   "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
