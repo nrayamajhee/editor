@@ -10,12 +10,13 @@ export const docStyle =
 
 type DocumentProp = {
   document: Doc;
+  link: string;
 };
 
-export default function Document({ document }: DocumentProp) {
+export default function Document({ document, link }: DocumentProp) {
   const navigation = useNavigation();
   return (
-    <Link to={`/document/${document.id}`} className={docStyle}>
+    <Link to={link} className={docStyle}>
       <div className="p-6 flex flex-cols items-end">
         <div className="flex flex-col gap-2 flex-1">
           <p className="font-semibold text-xl">{document.title}</p>

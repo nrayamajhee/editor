@@ -1,6 +1,5 @@
 import type { LoaderFunction, LinksFunction } from "@remix-run/node";
 import {
-  isRouteErrorResponse,
   Link,
   Links,
   Meta,
@@ -13,7 +12,7 @@ import {
 
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 
-import "./tailwind.css";
+import "./main.css";
 
 export const loader: LoaderFunction = (args) => {
   return rootAuthLoader(args, () => {
@@ -57,14 +56,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {error?.status === 404 ? <NotFound /> : children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.API_URL = "${data?.API_URL}"`,
-          }}
-        />
-
-        <ScrollRestoration />
+        {error?.status === 404 ? (
+          <NotFound />
+        ) : (
+          <>
+            {children}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.API_URL = "${data?.API_URL}"`,
+              }}
+            />
+            <ScrollRestoration />
+          </>
+        )}
         <Scripts />
       </body>
     </html>

@@ -4,7 +4,7 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiUser } from "react-icons/fi";
 
 export type ProfileProps = {
-  user: User;
+  user: Omit<User, "raw">;
   variant?: "big" | "small";
 };
 

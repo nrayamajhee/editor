@@ -1,10 +1,9 @@
+import { RedirectToSignIn, useUser } from "@clerk/remix";
+import { createClerkClient } from "@clerk/remix/api.server";
 import { getAuth } from "@clerk/remix/ssr.server";
-import {
-  redirect,
-  type LoaderFunction,
-  type MetaFunction,
-} from "@remix-run/node";
-import Spinner from "~/components/Spinner";
+import { LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { redirect, useNavigate } from "@remix-run/react";
+import { LoaderFunction, useLoaderData } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,19 +12,20 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async (args) => {
-  const user = await getAuth(args);
-  if (user.userId) {
-    return redirect(`${user.userId}/documents`);
-  } else {
-    return redirect("/login");
+export async function loader(args: LoaderFunctionArgs) {
+  const { userId } = await getAuth(args);
+  if (userId) {
+    const user = await createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY,
+    }).users.getUser(userId);
+    return redirect(`/${user.username}/documents`);
   }
-};
+  return userId;
+}
 
 export default function Index() {
-  return (
-    <div className="grid place-items-center min-h-screen">
-      <Spinner />
-    </div>
-  );
+  const userId = useLoaderData();
+  if (!userId) {
+    return <RedirectToSignIn />;
+  }
 }
