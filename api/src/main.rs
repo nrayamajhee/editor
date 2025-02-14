@@ -16,7 +16,7 @@ use axum::{
     extract::{MatchedPath, Request},
     http::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
-        Method,
+        HeaderValue, Method,
     },
     routing::get,
     Router,
@@ -28,7 +28,11 @@ use reqwest::Client;
 use serde::Deserialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::path::PathBuf;
-use tower_http::{cors::CorsLayer, services::ServeDir, trace::TraceLayer};
+use tower_http::{
+    cors::{AllowOrigin, CorsLayer},
+    services::ServeDir,
+    trace::TraceLayer,
+};
 use tracing::info_span;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -83,6 +87,12 @@ async fn main() -> Result<()> {
         ))
         .build();
     let s3 = aws_sdk_s3::Client::new(&config);
+    let allow_origin = env_var!("ALLOW_CORS")
+        .parse::<String>()?
+        .split(",")
+        .map(|s| s.trim().parse::<HeaderValue>().unwrap())
+        .collect::<Vec<_>>();
+    let allow_origin = AllowOrigin::list(allow_origin.into_iter());
     let app = Router::new()
         .route("/documents", get(document::get_all).post(document::create))
         .route(
@@ -102,10 +112,7 @@ async fn main() -> Result<()> {
         .route("/", get(root))
         .layer(
             CorsLayer::new()
-                .allow_origin([
-                    env_var!("APP_URL").parse()?,
-                    "https://editor.rayamajhee.com".parse()?,
-                ])
+                .allow_origin(allow_origin)
                 .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
                 .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::OPTIONS]),
         )

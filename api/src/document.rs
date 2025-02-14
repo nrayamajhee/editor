@@ -14,6 +14,7 @@ use uuid::Uuid;
 #[derive(Serialize, Deserialize)]
 pub struct Document {
     id: Uuid,
+    author_id: Uuid,
     title: String,
     content: String,
     created_at: DateTime<Utc>,
@@ -77,11 +78,13 @@ pub async fn create(
     State(app): State<AppState>,
     Json(doc): Json<NewDocument>,
 ) -> JsonRes<Document> {
+    // clerk_rs::apis::users_api::User::get_user(clerk).await?;
     let document = query_as!(
         Document,
-        "insert into document (title, content) values ($1, $2) returning *",
+        "insert into document (title, content, author_id) values ($1, $2, $3) returning *",
         doc.title,
         doc.content,
+        Uuid::new_v4(),
     )
     .fetch_one(&app.db)
     .await?;

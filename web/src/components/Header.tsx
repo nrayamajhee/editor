@@ -15,8 +15,8 @@ export default function Header() {
         <Link className={linkStyle} to="/">
           Documents
         </Link>
-        <Link className={linkStyle} to="/pictures">
-          Pictures
+        <Link className={linkStyle} to="/photos">
+          Photos
         </Link>
       </nav>
     </div>

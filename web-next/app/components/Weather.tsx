@@ -7,7 +7,6 @@ import {
   WiDaySunnyOvercast,
 } from "react-icons/wi";
 import { Weather as W } from "schema";
-import toast from "react-hot-toast";
 import { queryErrored, queryIsLoading, useGet } from "~/utils/query";
 
 type Coords = {
@@ -39,7 +38,7 @@ export default function Weather() {
           window.localStorage.setItem("location", JSON.stringify(loc));
         },
         (err) => {
-          toast.error(err.message);
+          alert(err.message);
         }
       );
     }
