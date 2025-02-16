@@ -25,7 +25,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
 export default function Index() {
   const userId = useLoaderData();
-  console.log(userId);
   if (!userId) {
     return <RedirectToSignIn />;
   }

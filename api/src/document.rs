@@ -78,7 +78,6 @@ pub async fn create(
     State(app): State<AppState>,
     Json(doc): Json<NewDocument>,
 ) -> JsonRes<Document> {
-    // clerk_rs::apis::users_api::User::get_user(clerk).await?;
     let document = query_as!(
         Document,
         "insert into document (title, content, author_id) values ($1, $2, $3) returning *",

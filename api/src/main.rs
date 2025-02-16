@@ -5,6 +5,7 @@ macro_rules! env_var {
     }};
 }
 
+mod clerk;
 mod document;
 mod error;
 mod picture;
@@ -18,7 +19,7 @@ use axum::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
         HeaderValue, Method,
     },
-    routing::get,
+    routing::{get, post},
     Router,
 };
 use clerk_rs::validators::{axum::ClerkLayer, jwks::MemoryCacheJwksProvider};
@@ -87,7 +88,7 @@ async fn main() -> Result<()> {
         ))
         .build();
     let s3 = aws_sdk_s3::Client::new(&config);
-    let allow_origin = env_var!("ALLOW_CORS")
+    let allow_origin = env_var!("ALLOW_ORIGIN")
         .parse::<String>()?
         .split(",")
         .map(|s| s.trim().parse::<HeaderValue>().unwrap())
@@ -108,6 +109,7 @@ async fn main() -> Result<()> {
             None,
             true,
         ))
+        .route("/clerk-webhook", post(clerk::post_webhook))
         .nest_service("/assets", ServeDir::new("/assets"))
         .route("/", get(root))
         .layer(
