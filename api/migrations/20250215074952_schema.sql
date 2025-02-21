@@ -12,6 +12,7 @@ create table users (
     id UUID default gen_random_uuid() primary key not null,
     clerk_id text unique not null,
     username text unique not null,
+    email text not null,
     first_name text not null,
     last_name text not null,
     created_at timestamp with time zone not null,

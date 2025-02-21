@@ -104,13 +104,13 @@ async fn main() -> Result<()> {
         )
         .route("/weather", get(weather::get))
         .route("/pictures", get(picture::get_all).post(picture::upload))
-        .route("/clerk-webhook", post(clerk::post_webhook))
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk.clone()),
             None,
             true,
         ))
         .nest_service("/assets", ServeDir::new("/assets"))
+        .route("/clerk-webhook", post(clerk::post_webhook))
         .route("/", get(root))
         .layer(
             CorsLayer::new()
@@ -133,11 +133,7 @@ async fn main() -> Result<()> {
                 )
             }),
         )
-        .with_state(AppState {
-            db,
-            reqwest,
-            s3,
-        });
+        .with_state(AppState { db, reqwest, s3 });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
     axum::serve(listener, app).await?;
     Ok(())

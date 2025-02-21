@@ -3,7 +3,13 @@ import { type Document as Doc } from "schema";
 import { post, get } from "~/utils/query";
 import { getAuth, User } from "@clerk/remix/ssr.server";
 import Document from "~/components/Document";
-import { Form, redirect, useLoaderData, useNavigation } from "@remix-run/react";
+import {
+  Form,
+  redirect,
+  useLoaderData,
+  useNavigation,
+  useParams,
+} from "@remix-run/react";
 import { FiFile } from "react-icons/fi";
 import Spinner from "~/components/Spinner";
 import Loader from "~/components/Loader";
@@ -29,6 +35,7 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 export default function Dashboard() {
+  const { user: username } = useParams();
   const { state, formMethod } = useNavigation();
   const { documents, user } = useLoaderData<typeof loader>();
   const isCreating = state !== "idle" && formMethod === "POST";
@@ -48,9 +55,13 @@ export default function Dashboard() {
                       new Date(b.updated_at).getTime()
                   )
                   .map((document: Doc) => (
-                    <Document document={document} key={document.id} />
+                    <Document
+                      document={document}
+                      key={document.id}
+                      link={`${username}/document/${document.id}`}
+                    />
                   ))}
-                <Form action="/documents" method="POST">
+                <Form action={`/${username}/documents`} method="POST">
                   <input type="hidden" name="title" value="Untitled" />
                   <button
                     className={
@@ -78,6 +89,7 @@ export default function Dashboard() {
 }
 
 export async function action(args: ActionFunctionArgs) {
+  const { user: username } = args.params;
   const { getToken } = await getAuth(args);
   const token = await getToken();
   if (token) {
@@ -86,7 +98,7 @@ export async function action(args: ActionFunctionArgs) {
         title: "Untitled",
         content: "",
       })) as Doc;
-      return redirect(`/document/${doc.id}`);
+      return redirect(`${username}/document/${doc.id}`);
     } else {
       // const id = args.params.id;
       // const token = await getToken();

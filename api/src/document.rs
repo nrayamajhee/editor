@@ -91,6 +91,7 @@ pub async fn create(
     Extension(jwt): Extension<ClerkJwt>,
     Json(doc): Json<NewDocument>,
 ) -> JsonRes<Document> {
+    tracing::debug!("JWT {:?}", &jwt.sub);
     let user = query_as!(UserId, "select id from users where clerk_id = $1", jwt.sub)
         .fetch_one(&app.db)
         .await?;
