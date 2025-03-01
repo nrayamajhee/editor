@@ -31,12 +31,12 @@ async function fetchInternal<T>(
 }
 
 export async function get(path: string, token: string) {
-  return await fetchInternal(`${process.env.API_URL}${path}`, token, "GET");
+  return await fetchInternal(`${process.env.VITE_API_URL}${path}`, token, "GET");
 }
 
 export async function post<T>(path: string, token: string, body: T) {
   return await fetchInternal(
-    `${process.env.API_URL}${path}`,
+    `${process.env.VITE_API_URL}${path}`,
     token,
     "POST",
     body,
@@ -44,7 +44,7 @@ export async function post<T>(path: string, token: string, body: T) {
 }
 
 export async function del(path: string, token: string) {
-  return await fetchInternal(`${process.env.API_URL}${path}`, token, "DELETE");
+  return await fetchInternal(`${process.env.VITE_API_URL}${path}`, token, "DELETE");
 }
 
 type QueryState<T> =

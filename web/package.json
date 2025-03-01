@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "env": "infisical export --path=/editor_web > .env"
   },
   "dependencies": {
     "@clerk/react-router": "^1.1.1",
