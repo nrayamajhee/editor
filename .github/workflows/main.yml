@@ -23,24 +23,24 @@ jobs:
             backend:
               - 'api/**'
             frontend:
-              - 'web-next/**'
+              - 'web/**'
   frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web-next
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
+    defaults:
+      run:
+        working-directory: ./web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: "web-next/package-lock.json"
+          node-version: 22
+          cache: npm
+          cache-dependency-path: "**/package-lock.json"
       - name: Install npm pkgs
         run: |
-          npm ci
+          npm i
       - name: Typecheck, Format, and Build
         run: |
           npm run typecheck &&
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web-next
+        working-directory: ./web
     steps:
       - uses: actions/checkout@v2
       - uses: superfly/flyctl-actions/setup-flyctl@master
@@ -60,17 +60,16 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_FRONTEND }}
 
-
   backend:
     runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch' }}
     defaults:
       run:
-        working-directory: api
+        working-directory: ./api
     steps:
       - uses: actions/checkout@v4
-      - name: Rustup 
+      - name: Rustup
         run: rustup update stable && rustup default stable
       - name: Cargo check
         run: RUSTFLAGS="-D warnings" cargo check --verbose
@@ -80,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: api
+        working-directory: ./api
     steps:
       - uses: actions/checkout@v2
       - uses: superfly/flyctl-actions/setup-flyctl@master

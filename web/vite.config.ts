@@ -1,11 +1,11 @@
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
 
-export default defineConfig(() => {
-  return {
-    server: {
-      port: 3030,
-    },
-    plugins: [react()],
-  };
+export default defineConfig({
+  server: {
+    port: 3000,
+  },
+  plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });

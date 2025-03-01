@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "update note set content = $1 where id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aca17d64de7d8b646f834be474e4215947d379c16bf5c295cf9c14e4cf7f9bb0"
+}

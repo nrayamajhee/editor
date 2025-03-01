@@ -19,7 +19,7 @@ create table users (
     updated_at timestamp with time zone not null
 );
 
-create table document (
+create table note (
     id UUID default gen_random_uuid() primary key not null,
     title text not null,
     content text not null,
@@ -28,18 +28,18 @@ create table document (
     updated_at timestamp with time zone default now() not null
 );
 
-create trigger update_document_updated_at
-  before update on document 
+create trigger update_note_updated_at
+  before update on note 
   for each row execute function update_modified_row();
 
-create table picture (
+create table photo (
     name text not null primary key,
     created_at timestamp with time zone default now() not null,
     updated_at timestamp with time zone default now() not null
 );
 
-create trigger update_picture_updated_at
-  before update on picture
+create trigger update_photo_updated_at
+  before update on photo
   for each row execute function update_modified_row();
 
 create table weather (

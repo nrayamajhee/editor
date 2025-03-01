@@ -6,9 +6,9 @@ macro_rules! env_var {
 }
 
 mod clerk;
-mod document;
 mod error;
-mod picture;
+mod note;
+mod photo;
 mod weather;
 
 use anyhow::Result;
@@ -95,15 +95,13 @@ async fn main() -> Result<()> {
         .collect::<Vec<_>>();
     let allow_origin = AllowOrigin::list(allow_origin.into_iter());
     let app = Router::new()
-        .route("/documents", get(document::get_all).post(document::create))
+        .route("/notes", get(note::get_all).post(note::create))
         .route(
-            "/document/:id",
-            get(document::get)
-                .post(document::update)
-                .delete(document::delete),
+            "/note/:id",
+            get(note::get).post(note::update).delete(note::delete),
         )
         .route("/weather", get(weather::get))
-        .route("/pictures", get(picture::get_all).post(picture::upload))
+        .route("/photo", get(photo::get_all).post(photo::upload))
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk.clone()),
             None,
