@@ -4,3 +4,4 @@ export * from "./Note";
 export * from "./Photo";
 export * from "./UpdateNote";
 export * from "./Weather";
+export * from "./index";

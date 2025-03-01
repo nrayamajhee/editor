@@ -1,6 +1,6 @@
 import { getAuth } from "@clerk/react-router/ssr.server";
 import type { Route } from "./+types/notes";
-import { type Note as N, type NewNote } from "schema";
+import { type Note as N, type NewNote } from "~/schema";
 import { get, post } from "~/utils/query";
 import Spinner from "~/components/Spinner";
 import { FiFile } from "react-icons/fi";

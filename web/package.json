@@ -26,11 +26,11 @@
     "react-markdown": "^10.0.0",
     "react-router": "^7.2.0",
     "react-syntax-highlighter": "^15.6.1",
-    "remark-gfm": "^4.0.1",
-    "schema": "file://schema"
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@flydotio/dockerfile": "^0.7.8",
     "@react-router/dev": "^7.2.0",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^20",

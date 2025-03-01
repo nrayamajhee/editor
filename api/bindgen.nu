@@ -1,9 +1,9 @@
 #!/usr/bin/env nu
 
 cargo test export_bindings
-rm -r ../web/schema
-mv bindings ../web/schema
-cd ../web/schema
+rm -r ../web/app/schema
+mv bindings ../web/app/schema
+cd ../web/app/schema
 touch index.ts
 ls | get name | each { |file|
   let mod = $file | split words | get 0
@@ -12,4 +12,6 @@ ls | get name | each { |file|
   }
 }
 cat index.ts
+npm run format
+npm run lint:fix
 

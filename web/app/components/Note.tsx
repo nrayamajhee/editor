@@ -1,7 +1,7 @@
 import { formatDate } from "~/utils/formatter";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiMoreVertical } from "react-icons/fi";
-import { type Note as N } from "schema";
+import { type Note as N } from "~/schema";
 import Spinner from "./Spinner";
 import { Form, Link, useNavigation } from "react-router";
 

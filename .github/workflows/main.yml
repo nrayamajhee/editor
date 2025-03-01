@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: "**/package-lock.json"
       - name: Install npm pkgs
         run: |
-          npm i
+          npm ci
       - name: Typecheck, Format, and Build
         run: |
           npm run typecheck &&

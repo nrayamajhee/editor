@@ -6,7 +6,7 @@ import {
   WiDaySunny,
   WiDaySunnyOvercast,
 } from "react-icons/wi";
-import { type Weather as W } from "schema";
+import { type Weather as W } from "~/schema";
 import { queryErrored, queryIsLoading, useGet } from "~/utils/query";
 
 type Coords = {
