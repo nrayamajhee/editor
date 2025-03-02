@@ -26,12 +26,20 @@ pub struct Photo {
     pub updated_at: DateTime<Utc>,
 }
 
-pub async fn upload(State(app): State<AppState>, mut multipart: Multipart) -> JsonRes<Photo> {
+pub async fn upload(
+    State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
+    mut multipart: Multipart,
+) -> JsonRes<Photo> {
     let file = multipart.next_field().await?.unwrap();
     let name = file.file_name().unwrap().to_owned();
     let content_type = file.content_type().unwrap();
+    let user = get_user(&app.db, &jwt.sub).await?;
     if content_type.contains("image") {
-        let body = aws_sdk_s3::primitives::ByteStream::from(file.bytes().await?);
+        let bytes = file.bytes().await?;
+        let size_b = bytes.len() as i64;
+        let body = aws_sdk_s3::primitives::ByteStream::from(bytes);
+        let caption = "";
         app.s3
             .put_object()
             .bucket("editor")
@@ -42,8 +50,11 @@ pub async fn upload(State(app): State<AppState>, mut multipart: Multipart) -> Js
             .await?;
         let photo = query_as!(
             Photo,
-            "insert into photo (name) values ($1) returning *",
+            "insert into photo (name, caption, author_id, size_b) values ($1, $2, $3, $4) returning *",
             name,
+            caption,
+            user.id,
+            size_b
         )
         .fetch_one(&app.db)
         .await?;
@@ -53,8 +64,12 @@ pub async fn upload(State(app): State<AppState>, mut multipart: Multipart) -> Js
     }
 }
 
-pub async fn get_all(State(app): State<AppState>) -> JsonRes<Vec<Photo>> {
-    let photos = query_as!(Photo, "select * from photo")
+pub async fn get_all(
+    State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
+) -> JsonRes<Vec<Photo>> {
+    let user = get_user(&app.db, &jwt.sub).await?;
+    let photos = query_as!(Photo, "select * from photo where author_id = $1", user.id)
         .fetch_all(&app.db)
         .await?;
     Ok(Json(photos))

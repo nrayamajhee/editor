@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select * from photo",
+  "query": "select * from photo where author_id = $1",
   "describe": {
     "columns": [
       {
@@ -35,7 +35,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -46,5 +48,5 @@
       false
     ]
   },
-  "hash": "a5637677c7df40565b007b299fcd7d77270d5f8b11520c99009bd5258335a75c"
+  "hash": "4117e60854951cbbede8f68bc81f0d78ff98ac4d175fe1bfedfb9c6354bbb148"
 }
