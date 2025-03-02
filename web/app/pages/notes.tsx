@@ -14,9 +14,6 @@ export function meta() {
   ];
 }
 
-export const docStyle =
-  "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
-
 export async function loader(args: Route.LoaderArgs) {
   const { getToken } = await getAuth(args);
   const token = await getToken();
@@ -29,7 +26,7 @@ export function HydrateFallback() {
 }
 
 export default function Notes({ loaderData }: Route.ComponentProps) {
-  const { notes } = loaderData;
+  const { notes } = loaderData as { notes: N[] };
   const { username } = useParams();
   // const { state, formMethod } = useNavigate();
   // const isCreating = state !== "idle" && formMethod === "POST";
@@ -48,14 +45,9 @@ export default function Notes({ loaderData }: Route.ComponentProps) {
             link={`/${username}/note/${note.id}`}
           />
         ))}
-      <Form method="POST">
+      <Form method="post">
         <input type="hidden" name="title" value="Untitled" />
-        <button
-          className={
-            docStyle +
-            " w-full flex items-center justify-center gap-2 min-h-[5rem]"
-          }
-        >
+        <button className="bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none w-full flex items-center justify-center gap-2 min-h-[5rem]">
           {isCreating ? (
             <Spinner />
           ) : (

@@ -9,6 +9,7 @@ import {
 } from "react-router";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ClerkProvider } from "@clerk/react-router";
+import { Toaster } from "react-hot-toast";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -60,6 +61,7 @@ export default function App({
   return (
     <ClerkProvider loaderData={loaderData}>
       <Outlet />
+      <Toaster />
     </ClerkProvider>
   );
 }

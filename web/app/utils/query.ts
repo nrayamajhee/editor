@@ -31,7 +31,11 @@ async function fetchInternal<T>(
 }
 
 export async function get(path: string, token: string) {
-  return await fetchInternal(`${process.env.VITE_API_URL}${path}`, token, "GET");
+  return await fetchInternal(
+    `${process.env.VITE_API_URL}${path}`,
+    token,
+    "GET",
+  );
 }
 
 export async function post<T>(path: string, token: string, body: T) {
@@ -43,8 +47,31 @@ export async function post<T>(path: string, token: string, body: T) {
   );
 }
 
+export async function postForm(
+  path: string,
+  token: string,
+  formData: FormData,
+) {
+  const res = await fetch(`${process.env.VITE_API_URL}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+    body: formData,
+  });
+  if (res.ok) {
+    return await res.json();
+  } else {
+    throw Error(await res.text());
+  }
+}
+
 export async function del(path: string, token: string) {
-  return await fetchInternal(`${process.env.VITE_API_URL}${path}`, token, "DELETE");
+  return await fetchInternal(
+    `${process.env.VITE_API_URL}${path}`,
+    token,
+    "DELETE",
+  );
 }
 
 type QueryState<T> =

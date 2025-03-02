@@ -34,7 +34,7 @@ export default function Note({ document, link }: NoteProp) {
             }}
             className="flex flex-col items-stretch bg-zinc-700 rounded-md p-2 gap-2 min-w-32 shadow-md"
           >
-            <Form action={`/document/${document.id}`} method="DELETE">
+            <Form action={`/document/${document.id}`} method="delete">
               <button
                 className="flex gap-2 items-center"
                 onClick={(e) => {

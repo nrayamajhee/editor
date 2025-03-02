@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
             get(note::get).post(note::update).delete(note::delete),
         )
         .route("/weather", get(weather::get))
-        .route("/photo", get(photo::get_all).post(photo::upload))
+        .route("/photos", get(photo::get_all).post(photo::upload))
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk.clone()),
             None,
