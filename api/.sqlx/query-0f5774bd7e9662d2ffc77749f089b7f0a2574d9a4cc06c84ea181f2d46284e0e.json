@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "select * from note",
+  "query": "select id, clerk_id, email, username, first_name, last_name, created_at, updated_at from users where clerk_id = $1",
   "describe": {
     "columns": [
       {
@@ -10,34 +10,48 @@
       },
       {
         "ordinal": 1,
-        "name": "title",
+        "name": "clerk_id",
         "type_info": "Text"
       },
       {
         "ordinal": 2,
-        "name": "content",
+        "name": "email",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
-        "name": "author_id",
-        "type_info": "Uuid"
+        "name": "username",
+        "type_info": "Text"
       },
       {
         "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 5,
+        "ordinal": 7,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Text"
+      ]
     },
     "nullable": [
+      false,
+      false,
       false,
       false,
       false,
@@ -46,5 +60,5 @@
       false
     ]
   },
-  "hash": "af537d5f2583b9ac1f724b4c6da0d46ae751535be5a9a8fff5f482b928fcd301"
+  "hash": "0f5774bd7e9662d2ffc77749f089b7f0a2574d9a4cc06c84ea181f2d46284e0e"
 }

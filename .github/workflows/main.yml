@@ -72,7 +72,7 @@ jobs:
       - name: Rustup
         run: rustup update stable && rustup default stable
       - name: Cargo check
-        run: RUSTFLAGS="-D warnings" cargo check --verbose
+        run: RUSTFLAGS="-D warnings" cargo clippy
 
   deploy-backend:
     needs: backend

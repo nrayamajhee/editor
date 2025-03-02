@@ -91,6 +91,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <code>{stack}</code>
         </pre>
       )}
+      {message === "404" && (
+        <div>
+          Your way <a href="/">home</a>
+        </div>
+      )}
     </main>
   );
 }

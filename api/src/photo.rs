@@ -1,13 +1,17 @@
 use axum::extract::Path;
+use axum::Extension;
 use axum::{
     extract::{Multipart, State},
     Json,
 };
 use chrono::{DateTime, Utc};
+use clerk_rs::validators::authorizer::ClerkJwt;
 use serde::{Deserialize, Serialize};
 use sqlx::query_as;
 use ts_rs::TS;
+use uuid::Uuid;
 
+use crate::clerk::get_user;
 use crate::{error::JsonRes, AppState};
 
 #[derive(TS)]
@@ -15,6 +19,9 @@ use crate::{error::JsonRes, AppState};
 #[derive(Deserialize, Serialize)]
 pub struct Photo {
     pub name: String,
+    pub caption: String,
+    pub author_id: Uuid,
+    pub size_b: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -54,10 +61,20 @@ pub async fn get_all(State(app): State<AppState>) -> JsonRes<Vec<Photo>> {
 }
 
 #[allow(dead_code)]
-pub async fn delete(Path(id): Path<String>, State(app): State<AppState>) -> JsonRes<Photo> {
-    let document = query_as!(Photo, "delete from photo where name = $1 returning *", id)
-        .fetch_one(&app.db)
-        .await?;
+pub async fn delete(
+    Path(id): Path<String>,
+    State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
+) -> JsonRes<Photo> {
+    let user = get_user(&app.db, &jwt.sub).await?;
+    let document = query_as!(
+        Photo,
+        "delete from photo where name = $1 and author_id = $2 returning *",
+        id,
+        user.id
+    )
+    .fetch_one(&app.db)
+    .await?;
     Ok(Json(document))
 }
 

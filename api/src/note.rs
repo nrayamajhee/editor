@@ -1,4 +1,4 @@
-use crate::{error::JsonRes, AppState};
+use crate::{clerk::get_user, error::JsonRes, AppState};
 use axum::{
     extract::{Path, State},
     Extension, Json,
@@ -75,27 +75,13 @@ pub async fn update(
     Ok(Json(note))
 }
 
-#[derive(Deserialize, Serialize)]
-struct User {
-    pub user_id: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct UserId {
-    pub id: Uuid,
-}
-
 #[axum::debug_handler]
 pub async fn create(
     State(app): State<AppState>,
     Extension(jwt): Extension<ClerkJwt>,
     Json(doc): Json<NewNote>,
 ) -> JsonRes<Note> {
-    tracing::debug!("JWT {:?}", &jwt.sub);
-    let user = query_as!(UserId, "select id from users where clerk_id = $1", jwt.sub)
-        .fetch_one(&app.db)
-        .await?;
-    tracing::debug!("USER {:?}", &user);
+    let user = get_user(&app.db, &jwt.sub).await?;
     let note = query_as!(
         Note,
         "insert into note (title, content, author_id) values ($1, $2, $3) returning *",
@@ -108,15 +94,29 @@ pub async fn create(
     Ok(Json(note))
 }
 
-pub async fn delete(Path(id): Path<Uuid>, State(app): State<AppState>) -> JsonRes<Note> {
-    let note = query_as!(Note, "delete from note where id = $1 returning *", id)
-        .fetch_one(&app.db)
-        .await?;
+pub async fn delete(
+    Path(id): Path<Uuid>,
+    State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
+) -> JsonRes<Note> {
+    let user = get_user(&app.db, &jwt.sub).await?;
+    let note = query_as!(
+        Note,
+        "delete from note where id = $1 and author_id = $2  returning *",
+        id,
+        user.id
+    )
+    .fetch_one(&app.db)
+    .await?;
     Ok(Json(note))
 }
 
-pub async fn get_all(State(app): State<AppState>) -> JsonRes<Vec<Note>> {
-    let notes = query_as!(Note, "select * from note")
+pub async fn get_all(
+    State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
+) -> JsonRes<Vec<Note>> {
+    let user = get_user(&app.db, &jwt.sub).await?;
+    let notes = query_as!(Note, "select * from note where author_id = $1", user.id)
         .fetch_all(&app.db)
         .await?;
     Ok(Json(notes))
