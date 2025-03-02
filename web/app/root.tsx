@@ -13,6 +13,8 @@ import { Toaster } from "react-hot-toast";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import "./markdown.css";
+import { FiXOctagon } from "react-icons/fi";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -67,33 +69,37 @@ export default function App({
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
+  let status = 404;
+
+  let message = "An unexpected error occurred.";
+  let details: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
+    status = error.status;
+    message =
       error.status === 404
         ? "The requested page could not be found."
-        : error.statusText || details;
+        : error.statusText || message;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    message = error.message;
+    details = JSON.stringify(error, null, 2);
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
+    <main className="max-w-[960px] mx-auto py-16 flex flex-col items-center gap-4">
+      <FiXOctagon size={56} className="text-red-500" />
+      <h1>{status}</h1>
+      <p>{message}</p>
+      {details && (
         <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
+          <code>{details}</code>
         </pre>
       )}
-      {message === "404" && (
+      {status === 404 && (
         <div>
-          Your way <a href="/">home</a>
+          <a href="/" className="text-blue-500">
+            Your way home
+          </a>
         </div>
       )}
     </main>

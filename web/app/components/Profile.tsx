@@ -1,7 +1,6 @@
 import { SignOutButton, useClerk } from "@clerk/react-router";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiUser } from "react-icons/fi";
-import { Link } from "react-router";
 
 export type ProfileProps = {
   user: {

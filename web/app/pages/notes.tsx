@@ -47,7 +47,7 @@ export default function Notes({ loaderData }: Route.ComponentProps) {
         ))}
       <Form method="post">
         <input type="hidden" name="title" value="Untitled" />
-        <button className="bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none w-full flex items-center justify-center gap-2 min-h-[5rem]">
+        <button className="cursor-pointer bg-zinc-900 active:bg-zinc-900 hover:bg-zinc-800 focus:bg-zinc-800 transition-colors rounded-2xl outline-none w-full flex items-center justify-center gap-2 min-h-[5rem]">
           {isCreating ? (
             <Spinner />
           ) : (

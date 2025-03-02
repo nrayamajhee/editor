@@ -90,7 +90,7 @@ export async function action(args: Route.ActionArgs) {
   const token = await getToken();
   if (args.request.method === "DELETE" && token) {
     await del(`/note/${args.params.id}`, token);
-    return redirect("/notes");
+    return redirect(`/${args.params.username}/notes`);
   }
   if (args.request.method === "POST" && token) {
     const body = await args.request.json();
@@ -121,7 +121,7 @@ export default function Note({ loaderData }: Route.ComponentProps) {
   }, []);
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <header className="sm:grid sm:grid-cols-3 flex flex-cols gap-4 bg-zinc-800 p-4">
+      <header className="sm:grid sm:grid-cols-3 flex flex-cols gap-4 bg-zinc-900 p-4">
         <div className="flex gap-4 items-center flex-1 md:flex-none">
           <Link to="/">
             <FiArrowLeft />
@@ -129,7 +129,7 @@ export default function Note({ loaderData }: Route.ComponentProps) {
           <NoteTitle defaultTitle={note?.title ?? ""} />
         </div>
         <div className="justify-self-center">
-          <div className="flex gap-2 bg-zinc-900 p-1 rounded-md">
+          <div className="flex gap-2 bg-zinc-950 p-1 rounded-md">
             <button
               className={"p-2 rounded-md " + getColor("edit")}
               onClick={() => setMode("edit")}

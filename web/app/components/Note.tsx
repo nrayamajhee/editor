@@ -3,10 +3,10 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiMoreVertical } from "react-icons/fi";
 import { type Note as N } from "~/schema";
 import Spinner from "./Spinner";
-import { Form, Link, useNavigation } from "react-router";
+import { Form, Link, useNavigation, useParams } from "react-router";
 
 export const docStyle =
-  "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
+  "bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-900 focus:bg-zinc-800 transition-colors rounded-2xl outline-none";
 
 type NoteProp = {
   document: N;
@@ -14,6 +14,7 @@ type NoteProp = {
 };
 
 export default function Note({ document, link }: NoteProp) {
+  const { username } = useParams();
   const navigation = useNavigation();
   return (
     <Link to={link} className={docStyle}>
@@ -25,7 +26,7 @@ export default function Note({ document, link }: NoteProp) {
           </p>
         </div>
         <Popover className="relative">
-          <PopoverButton className="outline-none focus:bg-zinc-600 hover:bg-zinc-600 p-2 rounded-md">
+          <PopoverButton className="cursor-pointer outline-none hover:bg-zinc-700 p-2 rounded-md">
             <FiMoreVertical />
           </PopoverButton>
           <PopoverPanel
@@ -34,9 +35,9 @@ export default function Note({ document, link }: NoteProp) {
             }}
             className="flex flex-col items-stretch bg-zinc-700 rounded-md p-2 gap-2 min-w-32 shadow-md"
           >
-            <Form action={`/document/${document.id}`} method="delete">
+            <Form action={`/${username}/note/${document.id}`} method="delete">
               <button
-                className="flex gap-2 items-center"
+                className="flex w-full justify-center cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}

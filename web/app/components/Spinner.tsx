@@ -2,7 +2,7 @@ type SpinnerProps = {
   size?: "small";
 };
 export default function Spinner({ size: variant }: SpinnerProps) {
-  const size = variant === "small" ? "w-4 h-4" : "w-8 h-8";
+  const size = variant === "small" ? "w-3 h-3" : "w-6 h-6";
   return (
     <i
       className={
