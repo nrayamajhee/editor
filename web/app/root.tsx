@@ -69,7 +69,7 @@ export default function App({
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let status = 404;
+  let status = 500;
   let message = "An unexpected error occurred.";
   let details: string | undefined;
 
@@ -79,10 +79,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The requested page could not be found."
         : error.statusText || message;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    status = 500;
+  } else if (error instanceof Error) {
     message = error.message;
     details = error.stack;
+  } else {
+    details = JSON.stringify(error, null, 2);
   }
 
   return (
