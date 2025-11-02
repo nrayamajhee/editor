@@ -1,16 +1,19 @@
 import MonacoEditor, { type Monaco as M } from "@monaco-editor/react";
 import remarkGfm from "remark-gfm";
 import Markdown from "react-markdown";
-import { getAuth } from "@clerk/react-router/ssr.server";
+import { getAuth } from "@clerk/react-router/server";
 import type { Route } from "./+types/note";
-import { Link, redirect, useSubmit } from "react-router";
+import { Link, redirect, useLoaderData, useSubmit } from "react-router";
 import { del, get, post } from "~/utils/query";
 import { useAuth, useClerk } from "@clerk/react-router";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import Profile from "~/components/Profile";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus as darkTheme } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { vscDarkPlus as syntaxTheme } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import "katex/dist/katex.min.css";
 import { useDebounce } from "@uidotdev/usehooks";
 
 export const docStyle =
@@ -79,7 +82,7 @@ export async function loader(args: Route.LoaderArgs) {
   const { getToken } = await getAuth(args);
   const token = await getToken();
   if (!token) {
-    return redirect("/login");
+    return redirect("/");
   }
   const note = await get(`/note/${args.params.id}`, token);
   return { note };
@@ -98,9 +101,9 @@ export async function action(args: Route.ActionArgs) {
   }
 }
 
-export default function Note({ loaderData }: Route.ComponentProps) {
+export default function Note() {
   const clerk = useClerk();
-  const { note } = loaderData;
+  const { note } = useLoaderData<typeof loader>();
   const [text, setText] = useState<string | undefined>(note.content || "");
   const [mode, setMode] = useState<Mode>("split");
   const getColor = (buttonMode: Mode) =>
@@ -162,9 +165,10 @@ export default function Note({ loaderData }: Route.ComponentProps) {
         )}
         {mode !== "edit" && (
           <div className="flex-1 markdown overflow-y-auto">
-            <div className="p-4">
+            <div className="p-4 bg-zinc-900">
               <Markdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
                 components={{
                   code(props) {
                     //eslint-disable-next-line
@@ -176,10 +180,9 @@ export default function Note({ loaderData }: Route.ComponentProps) {
                         PreTag="div"
                         showLineNumbers={true}
                         language={match[1]}
-                        style={darkTheme}
-                      >
-                        {String(children).replace(/\n$/, "")}
-                      </SyntaxHighlighter>
+                        children={String(children).replace(/\n$/, "")}
+                        style={syntaxTheme}
+                      />
                     ) : (
                       <code {...rest} className={className}>
                         {children}

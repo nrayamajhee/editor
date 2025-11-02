@@ -8,6 +8,9 @@ import {
 } from "react-icons/wi";
 import { type Weather as W } from "~/schema";
 import { queryErrored, queryIsLoading, useGet } from "~/utils/query";
+import toast from "react-hot-toast";
+import { FiCloudOff } from "react-icons/fi";
+import { FlexDiv } from "~/ui/Flex";
 
 type Coords = {
   latitude: number;
@@ -18,15 +21,7 @@ export default function Weather() {
   const [loc, setLoc] = useState<Coords | undefined>();
   useEffect(() => {
     const location = localStorage.getItem("location");
-    let askLocation = true;
-    if (location) {
-      const l = JSON.parse(location);
-      if (new Date().getTime() - new Date(l.time).getTime() < 60000) {
-        setLoc(l);
-        askLocation = false;
-      }
-    }
-    if (askLocation) {
+    if (!location) {
       navigator.geolocation.getCurrentPosition(
         (location) => {
           const loc = {
@@ -38,15 +33,28 @@ export default function Weather() {
           window.localStorage.setItem("location", JSON.stringify(loc));
         },
         (err) => {
-          alert(err.message);
+          window.localStorage.setItem("location", "denied");
+          toast.error(`Failed to acquire location:\n${err.message}`);
         },
       );
+    } else if (location !== "denied") {
+      const l = JSON.parse(location);
+      if (new Date().getTime() - new Date(l.time).getTime() < 60000) {
+        setLoc(l);
+      }
     }
   }, []);
   const weather = useGet<W>(
     `/weather?lat=${loc?.latitude}&lon=${loc?.longitude}&unit=F`,
     !!loc,
   );
+  if (!loc)
+    return (
+      <FlexDiv>
+        <FiCloudOff />
+        <span>No location</span>
+      </FlexDiv>
+    );
   if (queryIsLoading(weather)) return <>loading</>;
   if (queryErrored(weather)) return <>error</>;
   return (

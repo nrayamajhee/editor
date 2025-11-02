@@ -1,11 +1,11 @@
-import { getAuth } from "@clerk/react-router/ssr.server";
+import { getAuth } from "@clerk/react-router/server";
 import { BiSolidCloudUpload } from "react-icons/bi";
 import { get, postForm } from "~/utils/query";
 import { useRef } from "react";
 import type { Photo } from "~/schema";
-import Spinner from "~/components/Spinner";
+import Spinner from "~/ui/Spinner";
 import { FiCamera } from "react-icons/fi";
-import { Form } from "react-router";
+import { Form, useLoaderData } from "react-router";
 import type { Route } from "./+types/photos";
 
 export async function loader(args: Route.LoaderArgs) {
@@ -28,8 +28,8 @@ export async function action(args: Route.ActionArgs) {
   }
 }
 
-export default function Photos({ loaderData }: Route.ComponentProps) {
-  const { photos } = loaderData;
+export default function Photos() {
+  const { photos } = useLoaderData<typeof loader>();
   const formRef = useRef<HTMLFormElement>(null);
   const isCreating = false;
   return (

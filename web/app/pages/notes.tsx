@@ -1,11 +1,17 @@
-import { getAuth } from "@clerk/react-router/ssr.server";
+import { getAuth } from "@clerk/react-router/server";
 import type { Route } from "./+types/notes";
 import { type Note as N, type NewNote } from "~/schema";
 import { get, post } from "~/utils/query";
-import Spinner from "~/components/Spinner";
+import Spinner from "~/ui/Spinner";
 import { FiFile } from "react-icons/fi";
-import { Form, redirect, useParams } from "react-router";
-import Note from "~/components/Note";
+import {
+  Form,
+  redirect,
+  useLoaderData,
+  useNavigation,
+  useParams,
+} from "react-router";
+import NoteLink from "~/components/Note";
 
 export function meta() {
   return [
@@ -25,12 +31,11 @@ export function HydrateFallback() {
   return <div>Loading...</div>;
 }
 
-export default function Notes({ loaderData }: Route.ComponentProps) {
-  const { notes } = loaderData as { notes: N[] };
+export default function Notes() {
+  const { notes } = useLoaderData<typeof loader>();
   const { username } = useParams();
-  // const { state, formMethod } = useNavigate();
-  // const isCreating = state !== "idle" && formMethod === "POST";
-  const isCreating = false;
+  const { state, formMethod } = useNavigation();
+  const isCreating = state !== "idle" && formMethod === "POST";
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 ">
       {notes
@@ -39,7 +44,7 @@ export default function Notes({ loaderData }: Route.ComponentProps) {
             new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
         )
         .map((note: N) => (
-          <Note
+          <NoteLink
             document={note}
             key={note.id}
             link={`/${username}/note/${note.id}`}

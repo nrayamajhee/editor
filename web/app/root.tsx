@@ -5,9 +5,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   type LayoutRouteProps,
 } from "react-router";
-import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ClerkProvider } from "@clerk/react-router";
 import { Toaster } from "react-hot-toast";
 
@@ -15,6 +15,9 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import "./markdown.css";
 import { FiXOctagon } from "react-icons/fi";
+import { clerkMiddleware, rootAuthLoader } from "@clerk/react-router/server";
+import { clerkClientMiddleware } from "./middleware/clerk-client-middleware";
+import { loggingMiddleware } from "./middleware/logging";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -51,15 +54,18 @@ export function Layout({ children }: LayoutRouteProps) {
   );
 }
 
+export const middleware: Route.MiddlewareFunction[] = [
+  clerkMiddleware(),
+  clerkClientMiddleware,
+  loggingMiddleware,
+];
+
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
 }
 
-export default function App({
-  loaderData,
-}: {
-  loaderData: Route.ComponentProps;
-}) {
+export default function App() {
+  const loaderData = useLoaderData<typeof loader>();
   return (
     <ClerkProvider loaderData={loaderData}>
       <Outlet />

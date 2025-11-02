@@ -15,6 +15,7 @@ async function fetchInternal<T>(
   method: Method,
   body?: T,
 ) {
+  console.log("FECTHIG", path, method, body);
   const res = await fetch(path, {
     method,
     headers: {

@@ -16,6 +16,6 @@ export default [
     },
   },
   {
-    ignores: [".react-router/"],
+    ignores: [".react-router/", "build"],
   },
 ];

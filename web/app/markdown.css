@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 .markdown h1,
 .markdown h2,
 .markdown h3,
@@ -53,21 +55,30 @@
 }
 .markdown blockquote {
   padding-left: 10px;
-  border-left: 4px solid var(--bg-1);
+  @apply border-l-4 border-zinc-800 my-4 text-zinc-500;
 }
 .markdown hr {
-  border-top-color: var(--bg-1);
+  @apply border-t border-zinc-950 my-4;
+}
+.markdown table {
+  @apply border border-zinc-950;
 }
 .markdown th,
 .markdown td {
   padding: 5px 10px;
 }
 .markdown thead tr {
-  background: var(--bg-1);
+  @apply bg-zinc-700;
 }
 .markdown tbody tr:nth-child(odd) {
-  background: var(--bg-2);
+  @apply bg-zinc-800;
 }
 .markdown a {
   color: #5f87e4;
+}
+.markdown pre:not(:has(> div)) {
+  @apply bg-zinc-950 p-4 rounded-lg;
+}
+.markdown pre div {
+  @apply rounded-lg;
 }

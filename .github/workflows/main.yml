@@ -4,6 +4,15 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
+    inputs:
+      app:
+        description: "Which app to run"
+        type: choice
+        default: "frontend"
+        required: true
+        options:
+          - frontend
+          - backend
 
 jobs:
   changes:
@@ -21,13 +30,15 @@ jobs:
         with:
           filters: |
             backend:
+              - '.github/**'
               - 'api/**'
             frontend:
+              - '.github/**'
               - 'web/**'
   frontend:
     runs-on: ubuntu-latest
     needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.changes.outputs.frontend == 'true' || github.event.inputs.app == 'frontend' }}
     defaults:
       run:
         working-directory: ./web
@@ -63,7 +74,7 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.changes.outputs.backend == 'true' || github.event.inputs.app == 'backend' }}
     defaults:
       run:
         working-directory: ./api

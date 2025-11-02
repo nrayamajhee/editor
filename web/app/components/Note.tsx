@@ -2,7 +2,7 @@ import { formatDate } from "~/utils/formatter";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { FiMoreVertical } from "react-icons/fi";
 import { type Note as N } from "~/schema";
-import Spinner from "./Spinner";
+import Spinner from "~/ui/Spinner";
 import { Form, Link, useNavigation, useParams } from "react-router";
 
 export const docStyle =
@@ -13,7 +13,7 @@ type NoteProp = {
   link: string;
 };
 
-export default function Note({ document, link }: NoteProp) {
+export default function NoteLink({ document, link }: NoteProp) {
   const { username } = useParams();
   const navigation = useNavigation();
   return (

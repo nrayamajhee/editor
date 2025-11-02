@@ -1,17 +1,19 @@
 import { redirect } from "react-router";
 import { RedirectToSignIn, SignedOut } from "@clerk/react-router";
-import { createClerkClient } from "@clerk/react-router/api.server";
-import { getAuth } from "@clerk/react-router/ssr.server";
+import { getAuth } from "@clerk/react-router/server";
 import type { Route } from "./+types";
+import { clerkClientContext } from "~/middleware/clerk-client-middleware";
 
 export async function loader(args: Route.LoaderArgs) {
   const { userId } = await getAuth(args);
   if (!userId) {
     return null;
   }
-  const user = await createClerkClient({
-    secretKey: process.env.CLERK_SECRET_KEY,
-  }).users.getUser(userId);
+  const clerkClient = args.context.get(clerkClientContext);
+  const user = await clerkClient?.users.getUser(userId);
+  if (!user) {
+    return null;
+  }
   return redirect(`/${user.username}/notes`);
 }
 
