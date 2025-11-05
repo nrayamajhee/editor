@@ -7,12 +7,22 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 FROM base as build
+
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ARG VITE_R2_URL
+ARG VITE_API_URL
+
 RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
 COPY package-lock.json package.json ./
 RUN npm ci --include dev
 COPY . .
+
+RUN echo "VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}" >> .env
+RUN echo "VITE_R2_URL=${VITE_R2_URL}" >> .env
+RUN echo "VITE_API_URL=${VITE_API_URL}" >> .env
+
 RUN npm run build
 RUN npm prune --omit=dev
 
