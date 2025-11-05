@@ -9,7 +9,7 @@ import {
 import { type Weather as W } from "~/schema";
 import { queryErrored, queryIsLoading, useGet } from "~/utils/query";
 import toast from "react-hot-toast";
-import { FiCloudOff } from "react-icons/fi";
+import { FiCloudOff, FiCompass } from "react-icons/fi";
 import { FlexDiv } from "~/ui/Flex";
 
 type Coords = {
@@ -19,24 +19,30 @@ type Coords = {
 
 export default function Weather() {
   const [loc, setLoc] = useState<Coords | undefined>();
+  const [askingLocation, setAskingLocation] = useState(false);
+  const askLocation = () => {
+    setAskingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (location) => {
+        const loc = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          time: new Date().toUTCString(),
+        };
+        setLoc(loc);
+        window.localStorage.setItem("location", JSON.stringify(loc));
+      },
+      (err) => {
+        setAskingLocation(false);
+        window.localStorage.setItem("location", "denied");
+        toast.error(`Failed to acquire location:\n${err.message}`);
+      },
+    );
+  };
   useEffect(() => {
     const location = localStorage.getItem("location");
     if (!location) {
-      navigator.geolocation.getCurrentPosition(
-        (location) => {
-          const loc = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            time: new Date().toUTCString(),
-          };
-          setLoc(loc);
-          window.localStorage.setItem("location", JSON.stringify(loc));
-        },
-        (err) => {
-          window.localStorage.setItem("location", "denied");
-          toast.error(`Failed to acquire location:\n${err.message}`);
-        },
-      );
+      askLocation();
     } else if (location !== "denied") {
       const l = JSON.parse(location);
       if (new Date().getTime() - new Date(l.time).getTime() < 60000) {
@@ -44,16 +50,28 @@ export default function Weather() {
       }
     }
   }, []);
+  const onAskLocation = () => {
+    window.localStorage.removeItem("location");
+    askLocation();
+  };
   const weather = useGet<W>(
     `/weather?lat=${loc?.latitude}&lon=${loc?.longitude}&unit=F`,
     !!loc,
   );
   if (!loc)
     return (
-      <FlexDiv>
-        <FiCloudOff />
-        <span>No location</span>
-      </FlexDiv>
+      <button onClick={onAskLocation}>
+        <FlexDiv className="cursor-pointer">
+          {askingLocation ? (
+            <div className="animate-spin">
+              <FiCompass />
+            </div>
+          ) : (
+            <FiCloudOff />
+          )}
+          <span>No location</span>
+        </FlexDiv>
+      </button>
     );
   if (queryIsLoading(weather)) return <>loading</>;
   if (queryErrored(weather)) return <>error</>;
