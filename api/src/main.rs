@@ -69,7 +69,7 @@ async fn main() -> Result<()> {
         .max_connections(5)
         .connect(&env_var!("DATABASE_URL"))
         .await?;
-    let config = ClerkConfiguration::new(None, None, Some(env_var!("CLERK_SECRET")), None);
+    let config = ClerkConfiguration::new(None, None, Some(env_var!("CLERK_SECRET_KEY")), None);
     let clerk = Clerk::new(config);
     let reqwest = Client::new();
     let config = aws_config::load_defaults(BehaviorVersion::latest())
