@@ -19,6 +19,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@react-router/node": "^7.9.5",
     "@react-router/serve": "^7.9.5",
+    "@remix-run/form-data-parser": "^0.14.0",
     "@uidotdev/usehooks": "^2.4.1",
     "isbot": "^5.1.31",
     "react": "^19.2.0",

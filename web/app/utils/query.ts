@@ -60,6 +60,7 @@ export async function postForm(
     },
     body: formData,
   });
+  console.log(res);
   if (res.ok) {
     return await res.json();
   } else {
