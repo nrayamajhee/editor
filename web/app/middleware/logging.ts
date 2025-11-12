@@ -1,5 +1,7 @@
+import type { LoaderFunctionArgs } from "react-router";
+
 export const loggingMiddleware = async (
-  { request }: any,
+  { request }: LoaderFunctionArgs,
   next: () => Promise<Response>,
 ) => {
   console.log(`[Request] ${request.method} ${request.url}`);

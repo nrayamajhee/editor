@@ -60,7 +60,7 @@ export default function Photos() {
   };
   return (
     <div
-      className="flex flex-col gap-8 relative min-h-[512px] p-6 md:p-8 [& *]:pointer-events-none"
+      className="flex flex-col gap-8 relative min-h-[512px] [& *]:pointer-events-none"
       onDragEnter={() => setDragging(true)}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {

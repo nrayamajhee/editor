@@ -11,9 +11,6 @@ import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import Profile from "~/components/Profile";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus as syntaxTheme } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import rehypeKatex from "rehype-katex";
-import remarkMath from "remark-math";
-import "katex/dist/katex.min.css";
 import { useDebounce } from "@uidotdev/usehooks";
 
 export const docStyle =
@@ -167,8 +164,7 @@ export default function Note() {
           <div className="flex-1 markdown overflow-y-auto">
             <div className="p-4 bg-zinc-900">
               <Markdown
-                remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeKatex]}
+                remarkPlugins={[remarkGfm]}
                 components={{
                   code(props) {
                     //eslint-disable-next-line
