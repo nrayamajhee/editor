@@ -29,7 +29,7 @@ export async function loader(args: Route.LoaderArgs) {
 export default function Dashboard() {
   const { user } = useLoaderData<typeof loader>();
   return (
-    <div className="mx-auto max-w-[960px] py-8 px-4 md:px-6 flex flex-col min-h-screen">
+    <div className="mx-auto max-w-[960px] p-4 md:p-6 flex flex-col min-h-screen">
       <header className="flex flex-col gap-8">
         <div className="flex justify-between px-16">
           <Weather />
@@ -44,7 +44,7 @@ export default function Dashboard() {
           </Link>
         </nav>
       </header>
-      <main className="p-6 md:p-8 border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
+      <main className="border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
         <Outlet />
       </main>
     </div>

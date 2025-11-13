@@ -1,0 +1,4 @@
+- Ask if children prop is needed.
+- Be minimalist. Only create fields that are absolutely necessary to achieve described behavior
+- Always favor non optional props for component except children. Always make children optional
+- run /storybook command to build the storybook for this component
