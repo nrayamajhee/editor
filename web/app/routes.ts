@@ -10,6 +10,7 @@ export default [
   layout("layout/dashboard.tsx", [
     route(":username/notes", "pages/notes.tsx"),
     route(":username/photos", "pages/photos.tsx"),
+    route(":username/finance", "pages/finance.tsx"),
   ]),
   route("/:username/note/:id", "pages/note.tsx"),
 ] satisfies RouteConfig;
