@@ -42,6 +42,9 @@ export default function Dashboard() {
           <Link className={linkStyle} to={`${user.username}/photos`}>
             Photos
           </Link>
+          <Link className={linkStyle} to={`${user.username}/finance`}>
+            Finance
+          </Link>
         </nav>
       </header>
       <main className="border-t-sky-400/10 border-t-2 rounded-3xl hover:border-t-sky-400/20 transition-colors duration-700">
