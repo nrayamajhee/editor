@@ -161,35 +161,33 @@ export default function Note() {
           </div>
         )}
         {mode !== "edit" && (
-          <div className="flex-1 markdown overflow-y-auto">
-            <div className="p-4 bg-zinc-900">
-              <Markdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  code(props) {
-                    //eslint-disable-next-line
-                    const { children, className, ref, ...rest } = props;
-                    const match = /language-(\w+)/.exec(className || "");
-                    return match ? (
-                      <SyntaxHighlighter
-                        {...rest}
-                        PreTag="div"
-                        showLineNumbers={true}
-                        language={match[1]}
-                        children={String(children).replace(/\n$/, "")}
-                        style={syntaxTheme}
-                      />
-                    ) : (
-                      <code {...rest} className={className}>
-                        {children}
-                      </code>
-                    );
-                  },
-                }}
-              >
-                {text}
-              </Markdown>
-            </div>
+          <div className="p-4 bg-zinc-900 min-h-screen flex-1 markdown overflow-y-auto">
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code(props) {
+                  //eslint-disable-next-line
+                  const { children, className, ref, ...rest } = props;
+                  const match = /language-(\w+)/.exec(className || "");
+                  return match ? (
+                    <SyntaxHighlighter
+                      {...rest}
+                      PreTag="div"
+                      showLineNumbers={true}
+                      language={match[1]}
+                      children={String(children).replace(/\n$/, "")}
+                      style={syntaxTheme}
+                    />
+                  ) : (
+                    <code {...rest} className={className}>
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+            >
+              {text}
+            </Markdown>
           </div>
         )}
       </div>
