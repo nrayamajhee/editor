@@ -83,7 +83,7 @@ export default function ProfilePage() {
       </Card>
 
       <Card title="Active Devices">
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {sessions?.map((session) => (
             <div
               key={session.id}
@@ -110,7 +110,9 @@ export default function ProfilePage() {
             </div>
           ))}
           {(!sessions || sessions.length === 0) && (
-            <p className="text-zinc-500 italic p-2">No active devices found</p>
+            <p className="text-zinc-500 italic p-2 col-span-full">
+              No active devices found
+            </p>
           )}
         </div>
       </Card>
