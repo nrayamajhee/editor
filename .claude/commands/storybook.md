@@ -1,3 +1,0 @@
-- Always create a single Story first.
-- Create react router createRotueStub for any component that uses react router specific code
-- run /cleanup command to get the code PR ready
