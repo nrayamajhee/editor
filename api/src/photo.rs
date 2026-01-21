@@ -36,7 +36,10 @@ pub async fn upload(
     mut multipart: Multipart,
 ) -> JsonRes<Photo> {
     let file = multipart.next_field().await?.unwrap();
-    let name = file.file_name().unwrap().to_owned();
+    let name = file
+        .file_name()
+        .map(|s| s.to_owned())
+        .unwrap_or_else(|| Uuid::new_v4().to_string());
     let content_type = file.content_type().unwrap();
     let user = get_user(&app.db, &jwt.sub).await?;
     if content_type.contains("image") {

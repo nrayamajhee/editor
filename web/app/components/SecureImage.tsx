@@ -19,13 +19,14 @@ export default function SecureImage({
 
   useEffect(() => {
     let objectUrl: string | null = null;
+    let canceled = false;
     const fetchImage = async () => {
       try {
         const token = await getToken();
         if (!token) return;
 
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/photos/${name}/view`,
+          `${import.meta.env.VITE_API_URL}/photos/${encodeURIComponent(name)}/view`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -36,19 +37,23 @@ export default function SecureImage({
         if (!response.ok) throw new Error("Failed to load image");
 
         const blob = await response.blob();
+        if (canceled) return;
+        
         objectUrl = URL.createObjectURL(blob);
         setSrc(objectUrl);
       } catch (err) {
+        if (canceled) return;
         console.error(err);
         setError(true);
       } finally {
-        setLoading(false);
+        if (!canceled) setLoading(false);
       }
     };
 
     fetchImage();
 
     return () => {
+      canceled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [name, getToken]);
