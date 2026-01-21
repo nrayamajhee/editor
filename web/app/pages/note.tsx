@@ -6,7 +6,7 @@ import type { Route } from "./+types/note";
 import { Link, redirect, useLoaderData, useSubmit } from "react-router";
 import { del, get, post } from "~/utils/query";
 import { useAuth, useClerk } from "@clerk/react-router";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import Profile from "~/components/Profile";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -105,15 +105,28 @@ export default function Note() {
   const [mode, setMode] = useState<Mode>("split");
   const getColor = (buttonMode: Mode) =>
     buttonMode === mode ? "bg-zinc-700" : "";
+  const lastWidth = useRef(0);
+
   useEffect(() => {
+    // Set initial width and mode
+    lastWidth.current = window.innerWidth;
+    if (window.innerWidth <= 768) {
+      setMode("view");
+    } else {
+      setMode("split");
+    }
+
     const h = () => {
-      if (window.innerWidth <= 768) {
+      const newWidth = window.innerWidth;
+      const oldWidth = lastWidth.current;
+
+      if (newWidth <= 768 && oldWidth > 768) {
         setMode("view");
-      } else {
+      } else if (newWidth > 768 && oldWidth <= 768) {
         setMode("split");
       }
+      lastWidth.current = newWidth;
     };
-    h();
     window.addEventListener("resize", h);
     return () => {
       window.removeEventListener("resize", h);
@@ -161,8 +174,8 @@ export default function Note() {
           </div>
         )}
         {mode !== "edit" && (
-          <div className="flex-1 markdown overflow-y-auto">
-            <div className="p-4 bg-zinc-900">
+          <div className="flex-1 markdown overflow-y-auto bg-zinc-900">
+            <div className="p-4">
               <Markdown
                 remarkPlugins={[remarkGfm]}
                 components={{
