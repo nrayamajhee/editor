@@ -8,6 +8,7 @@ import { Form, useActionData, useLoaderData } from "react-router";
 import type { Route } from "./+types/photos";
 import toast from "react-hot-toast";
 import FileDrop from "~/components/FileDrop";
+import SecureImage from "~/components/SecureImage";
 
 export async function loader(args: Route.LoaderArgs) {
   const { getToken } = await getAuth(args);
@@ -60,10 +61,10 @@ export default function Photos() {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 items-stretch  py-8 px-4 relative">
       <FileDrop onDrop={handleDrop} uploading={uploading} style="ghost" />
       {photos.map((photo: Photo) => (
-        <img
+        <SecureImage
           key={photo.name}
+          name={photo.name}
           className="aspect-square object-cover min-h-full"
-          src={`${import.meta.env.VITE_R2_URL}/${photo.name}`}
         />
       ))}
       <Form method="post" encType="multipart/form-data" ref={formRef}>

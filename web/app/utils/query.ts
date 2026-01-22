@@ -14,6 +14,7 @@ async function fetchInternal<T>(
   token: string,
   method: Method,
   body?: T,
+  responseType: "json" | "blob" = "json",
 ) {
   console.log("FECTHIG", path, method, body);
   const res = await fetch(path, {
@@ -25,6 +26,9 @@ async function fetchInternal<T>(
     body: body ? JSON.stringify(body) : undefined,
   });
   if (res.ok) {
+    if (responseType === "blob") {
+      return await res.blob();
+    }
     return await res.json();
   } else {
     throw Error(await res.text());
@@ -96,7 +100,11 @@ export function queryErrored<T>(query: QueryState<T>) {
   return query.status !== "fetched";
 }
 
-export function useGet<T>(url: string, enabled: boolean = true) {
+export function useGet<T>(
+  url: string,
+  enabled: boolean = true,
+  responseType: "json" | "blob" = "json",
+) {
   const { getToken } = useAuth();
   const [data, setData] = useState<QueryState<T>>({ status: "idle" });
   useEffect(() => {
@@ -122,13 +130,19 @@ export function useGet<T>(url: string, enabled: boolean = true) {
               status: "error",
             });
           };
-          fetchInternal(`${import.meta.env.VITE_API_URL}${url}`, token, "GET")
+          fetchInternal(
+            `${import.meta.env.VITE_API_URL}${url}`,
+            token,
+            "GET",
+            undefined,
+            responseType,
+          )
             .then(onSuccess)
             .catch(onError);
         }
       })();
     }
-  }, [url, enabled, getToken]);
+  }, [url, enabled, getToken, responseType]);
   return data;
 }
 
