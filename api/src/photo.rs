@@ -154,7 +154,7 @@ pub async fn view(
     }
     headers.insert(
         axum::http::header::CACHE_CONTROL,
-        "private, max-age=31536000".parse().unwrap(),
+        "private, max-age=2592000".parse().unwrap(),
     );
 
     Ok((headers, body))
