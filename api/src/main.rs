@@ -106,6 +106,7 @@ async fn main() -> Result<()> {
         .route("/transaction/:id", get(transaction::get))
         .route("/weather", get(weather::get))
         .route("/photos", get(photo::get_all).post(photo::upload))
+        .route("/photos/:name/view", get(photo::view))
         .layer(ClerkLayer::new(
             MemoryCacheJwksProvider::new(clerk.clone()),
             None,
