@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select * from photo where name = $1 and author_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "caption",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "size_b",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "46d2922f730a8456f44d9e40104d873b98da25ec97f55be3e1131432d5c2044e"
+}

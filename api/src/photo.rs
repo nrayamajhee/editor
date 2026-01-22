@@ -2,6 +2,7 @@ use axum::extract::Path;
 use axum::Extension;
 use axum::{
     extract::{Multipart, State},
+    response::IntoResponse,
     Json,
 };
 use chrono::{DateTime, Utc};
@@ -12,7 +13,10 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::clerk::get_user;
-use crate::{error::JsonRes, AppState};
+use crate::{
+    error::{AppError, JsonRes},
+    AppState,
+};
 
 #[derive(TS)]
 #[ts(export)]
@@ -44,7 +48,6 @@ pub async fn upload(
             .put_object()
             .bucket("editor")
             .key(name.clone())
-            .acl(aws_sdk_s3::types::ObjectCannedAcl::PublicRead)
             .body(body)
             .send()
             .await?;
@@ -99,4 +102,60 @@ pub async fn get(Path(id): Path<String>, State(app): State<AppState>) -> JsonRes
         .fetch_one(&app.db)
         .await?;
     Ok(Json(document))
+}
+
+pub async fn view(
+    Path(name): Path<String>,
+    State(app): State<AppState>,
+    Extension(jwt): Extension<ClerkJwt>,
+) -> Result<impl IntoResponse, AppError> {
+    let user = get_user(&app.db, &jwt.sub).await?;
+
+    // Verify ownership
+    let _photo = query_as!(
+        Photo,
+        "select * from photo where name = $1 and author_id = $2",
+        name,
+        user.id
+    )
+    .fetch_one(&app.db)
+    .await?;
+
+    let object = app
+        .s3
+        .get_object()
+        .bucket("editor")
+        .key(name)
+        .send()
+        .await
+        .map_err(|e| anyhow::Error::new(e))?;
+
+    let bytes = object
+        .body
+        .collect()
+        .await
+        .map_err(|e| anyhow::Error::new(e))?
+        .into_bytes();
+
+    let body = axum::body::Body::from(bytes);
+
+    let mut headers = axum::http::HeaderMap::new();
+    if let Some(content_type) = object.content_type {
+        headers.insert(
+            axum::http::header::CONTENT_TYPE,
+            content_type.parse().unwrap(),
+        );
+    }
+    if let Some(content_length) = object.content_length {
+        headers.insert(
+            axum::http::header::CONTENT_LENGTH,
+            content_length.to_string().parse().unwrap(),
+        );
+    }
+    headers.insert(
+        axum::http::header::CACHE_CONTROL,
+        "private, max-age=2592000".parse().unwrap(),
+    );
+
+    Ok((headers, body))
 }
