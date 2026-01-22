@@ -37,7 +37,7 @@ export default function NoteLink({ document, link }: NoteProp) {
           >
             <Form action={`/${username}/note/${document.id}`} method="delete">
               <button
-                className="flex w-full justify-center cursor-pointer"
+                className="px-2 py-1 rounded-sm hover:bg-zinc-800 cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
