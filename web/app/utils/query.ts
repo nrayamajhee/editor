@@ -16,7 +16,6 @@ async function fetchInternal<T>(
   body?: T,
   responseType: "json" | "blob" = "json",
 ) {
-  console.log("FECTHIG", path, method, body);
   const res = await fetch(path, {
     method,
     headers: {

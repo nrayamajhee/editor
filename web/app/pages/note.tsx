@@ -9,6 +9,7 @@ import { useAuth, useClerk } from "@clerk/react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import Profile from "~/components/Profile";
+import SecureImage from "~/components/SecureImage";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus as syntaxTheme } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useDebounce } from "@uidotdev/usehooks";
@@ -179,6 +180,18 @@ export default function Note() {
               <Markdown
                 remarkPlugins={[remarkGfm]}
                 components={{
+                  img(props) {
+                    const { src, alt } = props;
+                    if (
+                      src &&
+                      !src.startsWith("http") &&
+                      !src.startsWith("data:")
+                    ) {
+                      return <SecureImage name={src} alt={alt} />;
+                    }
+
+                    return <img {...props} />;
+                  },
                   code(props) {
                     //eslint-disable-next-line
                     const { children, className, ref, ...rest } = props;

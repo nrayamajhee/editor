@@ -39,11 +39,11 @@ export default function Dashboard() {
           <Link className={linkStyle} to={`${user.username}/notes`}>
             Notes
           </Link>
+          <Link className={linkStyle} to={`${user.username}/photos`}>
+            Photos
+          </Link>
           {process.env.NODE_ENV === "development" && (
             <>
-              <Link className={linkStyle} to={`${user.username}/photos`}>
-                Photos
-              </Link>
               <Link className={linkStyle} to={`${user.username}/finance`}>
                 Finance
               </Link>

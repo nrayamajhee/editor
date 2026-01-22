@@ -67,7 +67,6 @@ export async function action(args: Route.ActionArgs) {
       return { message: "File size must be less than 10MB", type: "error" };
     }
     try {
-      console.log(formData);
       const result = await postForm("/transactions/upload", token, formData);
       return { type: "success", message: result };
     } catch (e) {

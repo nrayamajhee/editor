@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import type { Photo } from "~/schema";
 import Spinner from "~/ui/Spinner";
 import { FiCamera } from "react-icons/fi";
-import { Form, useActionData, useLoaderData } from "react-router";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  Link,
+  useParams,
+} from "react-router";
 import type { Route } from "./+types/photos";
 import toast from "react-hot-toast";
 import FileDrop from "~/components/FileDrop";
@@ -50,6 +56,7 @@ export default function Photos() {
     setUploading(false);
   }, [actionData]);
   const { photos } = useLoaderData<typeof loader>();
+  const { username } = useParams();
   const handleDrop = (files: FileList) => {
     if (inputRef.current && formRef.current) {
       setUploading(true);
@@ -61,11 +68,16 @@ export default function Photos() {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 items-stretch  py-8 px-4 relative">
       <FileDrop onDrop={handleDrop} uploading={uploading} style="ghost" />
       {photos.map((photo: Photo) => (
-        <SecureImage
+        <Link
           key={photo.name}
-          name={photo.name}
-          className="aspect-square object-cover min-h-full"
-        />
+          to={`/${username}/photo/${photo.name}`}
+          className="aspect-square min-h-full block overflow-hidden"
+        >
+          <SecureImage
+            name={photo.name}
+            className="w-full h-full object-cover"
+          />
+        </Link>
       ))}
       <Form method="post" encType="multipart/form-data" ref={formRef}>
         <input

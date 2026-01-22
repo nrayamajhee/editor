@@ -14,4 +14,5 @@ export default [
     route(":username/profile", "pages/profile.tsx"),
   ]),
   route("/:username/note/:id", "pages/note.tsx"),
+  route("/:username/photo/:name", "pages/photo.tsx"),
 ] satisfies RouteConfig;
