@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/react-router";
+import { useGet, queryIsLoading, queryErrored } from "~/utils/query";
 
 type SecureImageProps = {
   name: string;
@@ -12,55 +12,27 @@ export default function SecureImage({
   className,
   alt,
 }: SecureImageProps) {
-  const { getToken } = useAuth();
+  const query = useGet<Blob>(
+    `/photos/${encodeURIComponent(name)}/view`,
+    true,
+    "blob",
+  );
   const [src, setSrc] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
-    let objectUrl: string | null = null;
-    let canceled = false;
-    const fetchImage = async () => {
-      try {
-        const token = await getToken();
-        if (!token) return;
+    if (query.status === "fetched") {
+      const objectUrl = URL.createObjectURL(query.data);
+      setSrc(objectUrl);
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+    }
+  }, [query]);
 
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/photos/${encodeURIComponent(name)}/view`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        if (!response.ok) throw new Error("Failed to load image");
-
-        const blob = await response.blob();
-        if (canceled) return;
-        
-        objectUrl = URL.createObjectURL(blob);
-        setSrc(objectUrl);
-      } catch (err) {
-        if (canceled) return;
-        console.error(err);
-        setError(true);
-      } finally {
-        if (!canceled) setLoading(false);
-      }
-    };
-
-    fetchImage();
-
-    return () => {
-      canceled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [name, getToken]);
-
-  if (loading)
+  if (queryIsLoading(query))
     return <div className={`bg-zinc-800 animate-pulse ${className}`} />;
-  if (error || !src)
+
+  if (queryErrored(query) || (!src && query.status === "fetched"))
     return (
       <div
         className={`bg-zinc-800 flex items-center justify-center text-zinc-500 ${className}`}
@@ -69,5 +41,5 @@ export default function SecureImage({
       </div>
     );
 
-  return <img src={src} className={className} alt={alt || name} />;
+  return src ? <img src={src} className={className} alt={alt || name} /> : null;
 }
