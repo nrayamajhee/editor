@@ -13,7 +13,7 @@ export default function SecureImage({
   alt,
 }: SecureImageProps) {
   const query = useGet<Blob>(
-    `/photos/${encodeURIComponent(name)}/view`,
+    `/photos/${encodeURIComponent(name)}`,
     true,
     "blob",
   );
