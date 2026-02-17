@@ -51,3 +51,15 @@ export const Info: Story = {
     variant: "info",
   },
 };
+
+export const Variants: StoryObj = {
+  render: () => (
+    <div className="flex gap-4 items-center">
+      <Badge variant="neutral">Neutral</Badge>
+      <Badge variant="success">Success</Badge>
+      <Badge variant="info">Info</Badge>
+      <Badge variant="warning">Warning</Badge>
+      <Badge variant="danger">Danger</Badge>
+    </div>
+  ),
+};

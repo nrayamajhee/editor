@@ -1,4 +1,3 @@
-import MonacoEditor, { type Monaco as M } from "@monaco-editor/react";
 import remarkGfm from "remark-gfm";
 import Markdown from "react-markdown";
 import { getAuth } from "@clerk/react-router/server";
@@ -10,6 +9,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { FiArrowLeft, FiColumns, FiEdit, FiEye } from "react-icons/fi";
 import Profile from "~/components/Profile";
 import SecureImage from "~/components/SecureImage";
+import Monaco from "~/components/Monaco";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus as syntaxTheme } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useDebounce } from "@uidotdev/usehooks";
@@ -18,63 +18,6 @@ export const docStyle =
   "bg-zinc-700/50 hover:bg-zinc-700/80 active:bg-zinc-700/60 focus:bg-zinc-700/80 transition-colors rounded-2xl outline-none";
 
 type Mode = "edit" | "view" | "split";
-
-type MonacoProps = {
-  defaultText: string;
-  setText: (newText: string) => void;
-};
-
-function Monaco({ defaultText, setText }: MonacoProps) {
-  const submit = useSubmit();
-  const { getToken } = useAuth();
-  const [text, setTextInternal] = useState(defaultText);
-  const handleUpdate = (value?: string) => {
-    if (value) {
-      setTextInternal(value);
-    }
-  };
-  const debouncedText = useDebounce(text, 200);
-  useEffect(() => {
-    (async () => {
-      if (debouncedText != defaultText) {
-        setText(debouncedText);
-        const token = await getToken();
-        if (token) {
-          submit(
-            {
-              content: debouncedText,
-            },
-            { method: "POST", encType: "application/json" },
-          );
-        }
-      }
-    })();
-  }, [debouncedText, setText, getToken, defaultText, submit]);
-  function handleOnMount(_editor: object, monaco: M) {
-    monaco.editor.addKeybindingRule({
-      keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF,
-      command: null,
-    });
-    monaco.editor.addKeybindingRule({
-      keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH,
-      command: null,
-    });
-  }
-  return (
-    <MonacoEditor
-      defaultLanguage="markdown"
-      defaultValue={text}
-      theme="vs-dark"
-      options={{
-        minimap: {
-          enabled: false,
-        },
-      }}
-      onChange={handleUpdate}
-      onMount={handleOnMount}
-    />
-  );
-}
 
 export async function loader(args: Route.LoaderArgs) {
   const { getToken } = await getAuth(args);
@@ -101,6 +44,8 @@ export async function action(args: Route.ActionArgs) {
 
 export default function Note() {
   const clerk = useClerk();
+  const { getToken } = useAuth();
+  const submit = useSubmit();
   const { note } = useLoaderData<typeof loader>();
   const [text, setText] = useState<string | undefined>(note.content || "");
   const [mode, setMode] = useState<Mode>("split");
@@ -171,7 +116,12 @@ export default function Note() {
       <div className="flex min-h-0 flex-1">
         {mode !== "view" && text !== undefined && clerk.loaded && (
           <div className="flex-1 min-w-0 min-h-full">
-            <Monaco defaultText={text} setText={setText} />
+            <Monaco
+              defaultText={text}
+              setText={setText}
+              getToken={getToken}
+              submit={submit}
+            />
           </div>
         )}
         {mode !== "edit" && (

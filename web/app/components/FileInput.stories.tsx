@@ -55,3 +55,37 @@ export const ImageOnly: Story = {
     },
   },
 };
+
+export const Variants: StoryObj = {
+  render: () => (
+    <div className="flex flex-col gap-6 items-center">
+      <div className="flex flex-col gap-2 items-center">
+        <p className="text-sm text-zinc-500">Default</p>
+        <FileInput
+          uploading={false}
+          accept="*"
+          label="Upload File"
+          onFileChange={() => {}}
+        />
+      </div>
+      <div className="flex flex-col gap-2 items-center">
+        <p className="text-sm text-zinc-500">Uploading</p>
+        <FileInput
+          uploading={true}
+          accept="*"
+          label="Upload File"
+          onFileChange={() => {}}
+        />
+      </div>
+      <div className="flex flex-col gap-2 items-center">
+        <p className="text-sm text-zinc-500">CSV Only</p>
+        <FileInput
+          uploading={false}
+          accept=".csv"
+          label="Upload CSV"
+          onFileChange={() => {}}
+        />
+      </div>
+    </div>
+  ),
+};
