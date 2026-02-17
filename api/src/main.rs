@@ -9,7 +9,6 @@ mod clerk;
 mod error;
 mod note;
 mod photo;
-mod transaction;
 mod weather;
 
 use anyhow::Result;
@@ -101,9 +100,6 @@ async fn main() -> Result<()> {
             "/note/:id",
             get(note::get).post(note::update).delete(note::delete),
         )
-        .route("/transactions", get(transaction::get_all).post(transaction::create))
-        .route("/transactions/upload", post(transaction::upload_csv))
-        .route("/transaction/:id", get(transaction::get))
         .route("/weather", get(weather::get))
         .route("/photos", get(photo::get_all).post(photo::upload))
         .route("/photos/:name", get(photo::view))
